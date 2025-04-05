@@ -1,30 +1,58 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { FaSearch, FaWhatsapp, FaBars, FaTimes, FaChevronDown, FaPlus } from "react-icons/fa";
-import { hostelsData } from "../Data/Product";
 
 const Navbar = () => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [filteredAreas, setFilteredAreas] = useState<string[]>([]);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [allAreas, setAllAreas] = useState<string[]>([]);
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [isSearchFocused, setIsSearchFocused] = useState<boolean>(false);
+  const [isLoadingAreas, setIsLoadingAreas] = useState<boolean>(true);
 
-  // Get all unique areas from your hostelsData
-  const allAreas = [...new Set(hostelsData.map((group) => group.area))];
+  // Fetch areas from your API
+  useEffect(() => {
+    const fetchAreas = async () => {
+      try {
+        setIsLoadingAreas(true);
+        const response = await fetch('http://localhost:3001/api/areas');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && Array.isArray(data.data)) {
+          // Ensure all areas are strings and not empty
+          const validAreas = data.data
+            .map((area: any) => String(area || '').trim())
+            .filter((area: string) => area.length > 0);
+          
+          setAllAreas(validAreas);
+        }
+      } catch (error) {
+        console.error("Failed to fetch areas:", error);
+        setAllAreas([]);
+      } finally {
+        setIsLoadingAreas(false);
+      }
+    };
+
+    fetchAreas();
+  }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value;
+    const query = e.target.value.trim();
     setSearchQuery(query);
     
-    if (query.length > 0) {
-      setFilteredAreas(
-        allAreas.filter(area => 
-          area.toLowerCase().includes(query.toLowerCase())
-        )
+    if (query.length > 0 && allAreas.length > 0) {
+      const filtered = allAreas.filter((area: string) => 
+        area.toLowerCase().includes(query.toLowerCase())
       );
+      setFilteredAreas(filtered);
     } else {
       setFilteredAreas([]);
     }
@@ -33,9 +61,9 @@ const Navbar = () => {
   const handleAreaSelect = (area: string) => {
     setSearchQuery(area);
     setFilteredAreas([]);
-    // You can navigate directly to the explore page with the area selected
     window.location.href = `/explore?area=${encodeURIComponent(area)}`;
   };
+
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-white shadow-md z-50 font-sans">
@@ -80,20 +108,23 @@ const Navbar = () => {
 
         {/* Search Bar & WhatsApp Icon */}
         <div className="flex items-center space-x-4">
-          {/* Enhanced Search Bar */}
-          <div className="relative hidden lg:block">
+  {/* Enhanced Search Bar */}
+  <div className="relative hidden lg:block">
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search areas..."
+                placeholder={isLoadingAreas ? "Loading areas..." : "Search areas..."}
                 className="w-64 border border-slate-300 rounded-full px-4 py-2 pl-10 pr-8 focus:outline-none focus:ring-2 focus:ring-gold text-sm lg:text-base"
                 value={searchQuery}
                 onChange={handleSearch}
                 onFocus={() => setIsSearchFocused(true)}
                 onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+                disabled={isLoadingAreas}
               />
               <FaSearch className="absolute left-3 top-3 text-amber-500" />
-              <FaChevronDown className="absolute right-3 top-3 text-gray-400 text-xs" />
+              {!isLoadingAreas && allAreas.length > 0 && (
+                <FaChevronDown className="absolute right-3 top-3 text-gray-400 text-xs" />
+              )}
             </div>
 
             {/* Search Results Dropdown */}
@@ -108,7 +139,7 @@ const Navbar = () => {
                     key={index}
                     className="px-4 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0 transition-colors"
                     onClick={() => handleAreaSelect(area)}
-                    onMouseDown={(e) => e.preventDefault()} // Prevent input blur
+                    onMouseDown={(e) => e.preventDefault()}
                   >
                     <div className="flex items-center">
                       <svg className="w-4 h-4 mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,7 +153,6 @@ const Navbar = () => {
               </motion.div>
             )}
           </div>
-
           {/* WhatsApp Contact */}
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Link href="https://wa.me/2349135843102" target="_blank">

@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { hotProperties } from '../Data/HeroData';
 import Image from 'next/image';
-
+import Link from 'next/link';
 const PremiumProperties = () => {
   // Enhanced animation variants
   const fadeIn = {
@@ -111,13 +111,12 @@ const PremiumProperties = () => {
                   <p className="text-sm text-slate-500">Starting from</p>
                   <p className="text-xl font-bold text-slate-800">{property.price}</p>
                 </div>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                <Link
+                  href="/explore"
                   className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium rounded-lg transition-colors duration-300"
                 >
                   View Details
-                </motion.button>
+                </Link>
               </div>
             </div>
           </motion.div>

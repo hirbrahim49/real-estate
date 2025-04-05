@@ -8,14 +8,26 @@ import "slick-carousel/slick/slick-theme.css";
 import { FaWhatsapp, FaMapMarkerAlt, FaStar, FaChevronLeft, FaTimes } from "react-icons/fa";
 import { FiCheckCircle } from "react-icons/fi";
 import Link from "next/link";
-import { hostelsData } from "../../Components/Data/Product";
-import { Hostel } from "../../Components/Data/Product";
+
+interface Hostel {
+  id: string;
+  area: string;
+  name: string;
+  location: string;
+  shortDescription: string;
+  images: string[];
+  video: string;
+  price: string;
+  facilities: string[];
+  contact: string;
+}
 
 const HostelDetailPage = () => {
   const { id } = useParams();
   const [hostel, setHostel] = useState<Hostel | null>(null);
   const [activeTab, setActiveTab] = useState("description");
   const [showVideo, setShowVideo] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const sliderSettings = {
     dots: true,
@@ -32,21 +44,40 @@ const HostelDetailPage = () => {
   };
 
   useEffect(() => {
-    let foundHostel: Hostel | undefined;
-    for (const group of hostelsData) {
-      foundHostel = group.hostels.find(h => h.id === id);
-      if (foundHostel) break;
-    }
-    setHostel(foundHostel ?? null);
+    const fetchHostel = async () => {
+      try {
+        console.log("Fetching from: http://localhost:3001/api/hostels");
+        const response = await fetch('http://localhost:3001/api/hostels');
+        console.log("Response status:", response.status);
+        
+        if (!response.ok) {
+          console.log("Response not OK, status:", response.status);
+          throw new Error('Failed to fetch');
+        }
+        
+        const data = await response.json();
+        console.log("Data received:", data);
+        
+        const foundHostel = data.data.find((h: Hostel) => h.id === id);
+        console.log("Found hostel:", foundHostel);
+        
+        setHostel(foundHostel || null);
+      } catch (error) {
+        console.error("Full error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchHostel();
   }, [id]);
 
   const generateWhatsAppMessage = () => {
     if (!hostel) return "";
     
-    return `Hello,\n\nI'm interested in this hostel:\n\n*🏠 Hostel Name:* ${hostel.name}\n*📍 Location:* ${hostel.location}\n*💰 Price:* ${hostel.price}\n\nHere's a picture of the hostel:\n${hostel.Image[0]}\n\nCould you please provide more information about availability?`;
+    return `Hello,\n\nI'm interested in this hostel:\n\n*🏠 Hostel Name:* ${hostel.name}\n*📍 Location:* ${hostel.location}\n*💰 Price:* ${hostel.price}\n\nHere's a picture of the hostel:\n${hostel.images[0]}\n\nCould you please provide more information about availability?`;
   };
 
-  // Extract phone number from the WhatsApp link
   const getWhatsAppNumber = () => {
     if (!hostel?.contact) return "";
     const match = hostel.contact.match(/wa.me\/(\d+)/) || hostel.contact.match(/whatsapp.com\/(\d+)/);
@@ -57,17 +88,62 @@ const HostelDetailPage = () => {
     ? `${hostel.contact}?text=${encodeURIComponent(generateWhatsAppMessage())}`
     : `https://wa.me/${getWhatsAppNumber()}?text=${encodeURIComponent(generateWhatsAppMessage())}`;
 
+  useEffect(() => {
+    // Simulate loading for demonstration
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center space-y-6">
+        {/* Enhanced Loading Animation */}
+        <div className="relative w-20 h-20">
+          <div className="absolute inset-0 rounded-full border-4 border-slate-200"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-t-amber-500 border-r-amber-500 animate-spin"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-3 h-3 rounded-full bg-amber-500 animate-pulse"></div>
+          </div>
+        </div>
+        
+        {/* Text with fade animation */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="text-center space-y-2"
+        >
+          <h3 className="text-xl font-medium text-slate-800">Loading HostelHub</h3>
+          <p className="text-slate-500">Preparing your premium experience</p>
+        </motion.div>
+        
+        {/* Optional progress bar */}
+        <div className="w-64 bg-slate-200 rounded-full h-1.5 mt-4 overflow-hidden">
+          <motion.div 
+            className="bg-gradient-to-r from-amber-400 to-amber-600 h-full rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: '100%' }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   if (!hostel) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-pulse text-slate-700 font-light tracking-wide">Loading premium accommodations...</div>
+        <div className="text-slate-700 font-light tracking-wide">Hostel not found</div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Luxury Navigation Header */}
+      {/* Navigation Header */}
       <header className="bg-white shadow-sm py-6 px-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <Link href="/explore" className="flex items-center text-slate-700 hover:text-amber-600 transition-colors duration-300 group">
@@ -94,7 +170,7 @@ const HostelDetailPage = () => {
           {/* Gallery Section */}
           <div className="relative rounded-xl overflow-hidden shadow-xl mb-8">
             <Slider {...sliderSettings}>
-              {hostel.Image.map((image, index) => (
+              {hostel.images.map((image, index) => (
                 <div key={index} className="relative h-[500px]">
                   <img
                     src={image}
@@ -150,16 +226,18 @@ const HostelDetailPage = () => {
               <h3 className="text-xl font-serif font-light text-slate-800 mb-6">Arrange a Viewing</h3>
               
               <div className="space-y-4">
-                <button
-                  onClick={() => setShowVideo(true)}
-                  className="w-full px-6 py-4 bg-gradient-to-r from-slate-800 to-slate-700 hover:from-slate-700 hover:to-slate-600 text-white rounded-lg font-medium transition-all flex items-center justify-center shadow hover:shadow-lg"
-                >
-                  <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Virtual Tour
-                </button>
+                {hostel.video && (
+                  <button
+                    onClick={() => setShowVideo(true)}
+                    className="w-full px-6 py-4 bg-gradient-to-r from-slate-800 to-slate-700 hover:from-slate-700 hover:to-slate-600 text-white rounded-lg font-medium transition-all flex items-center justify-center shadow hover:shadow-lg"
+                  >
+                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Virtual Tour
+                  </button>
+                )}
 
                 <a
                   href={whatsappLink}
@@ -323,62 +401,10 @@ const HostelDetailPage = () => {
             )}
           </div>
         </motion.div>
-
-        {/* Similar Properties */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="mt-20"
-        >
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-serif font-light text-slate-800">Similar Premium Properties</h2>
-            <Link href="/explore" className="text-sm font-medium text-amber-600 hover:text-amber-500 transition flex items-center">
-              View All <FaChevronLeft className="ml-1 rotate-180" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {hostelsData
-              .find(group => group.hostels.some(h => h.id === id))?.hostels
-              .filter(h => h.id !== id)
-              .slice(0, 3)
-              .map((similarHostel, index) => (
-                <motion.div
-                  key={index}
-                  whileHover={{ y: -5 }}
-                  className="bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-lg"
-                >
-                  <Link href={`/hostel/${similarHostel.id}`}>
-                    <div className="relative h-60 group">
-                      <img
-                        src={similarHostel.Image[0]}
-                        alt={similarHostel.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent p-6 flex flex-col justify-end">
-                        <div className="flex justify-between items-end">
-                          <div>
-                            <h3 className="text-white font-serif text-xl mb-1">{similarHostel.name}</h3>
-                            <p className="text-white/90 text-sm">{similarHostel.price}</p>
-                          </div>
-                          <div className="flex items-center bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
-                            <FaStar className="text-amber-400 mr-1 text-sm" />
-                            <span className="text-white text-sm">4.8</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-          </div>
-        </motion.div>
       </main>
 
       {/* Video Modal */}
-      {showVideo && (
+      {showVideo && hostel.video && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

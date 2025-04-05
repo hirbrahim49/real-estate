@@ -2,9 +2,23 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { hostelsData } from "../Components/Data/Product";
+import { useSearchParams } from "next/navigation";
+
+interface Hostel {
+  id: string;
+  area: string;
+  name: string;
+  location: string;
+  shortDescription: string;
+  images: string[];
+  video: string;
+  price: string;
+  facilities: string[];
+  contact: string;
+}
 
 const Page = () => {
+  // Animation variants
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
@@ -14,42 +28,108 @@ const Page = () => {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
   };
-  const allAreas = [...new Set(hostelsData.map((group) => group.area))].sort();
+
+  // State declarations
+  const [hostelsData, setHostelsData] = useState<Hostel[]>([]);
   const [activeArea, setActiveArea] = useState<string | null>(null);
   const [visibleHostels, setVisibleHostels] = useState(6);
+  const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
 
-  // More robust filtering with case-insensitive comparison
+  // Fetch data on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/hostels'); // Changed to relative path
+        if (!response.ok) throw new Error('Failed to fetch');
+        const data = await response.json();
+        setHostelsData(data.data || []);
+      } catch (error) {
+        console.error("Fetch error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, []);
+
+  // Handle area from URL query parameter
+  useEffect(() => {
+    if (searchParams) {
+      const areaParam = searchParams.get('area');
+      if (areaParam) {
+        setActiveArea(areaParam);
+      }
+    }
+  }, [searchParams]);
+
+  // Get unique areas
+  const allAreas = [...new Set(hostelsData.map((hostel) => hostel.area))].sort();
+
+  // Filter hostels
   const filteredHostels = activeArea
-    ? hostelsData
-        .filter(group => group.area.toLowerCase() === activeArea.toLowerCase())
-        .flatMap(group => group.hostels)
-    : hostelsData.flatMap(group => group.hostels);
+    ? hostelsData.filter(hostel => 
+        hostel.area.toLowerCase() === activeArea.toLowerCase()
+      )
+    : hostelsData;
 
-  const loadMoreHostels = () => setVisibleHostels((prev) => prev + 6);
+  const loadMoreHostels = () => setVisibleHostels(prev => prev + 6);
 
   // Reset visible hostels when filter changes
   useEffect(() => {
     setVisibleHostels(6);
-    console.log("Filter changed. Active area:", activeArea);
-    console.log("Filtered hostels count:", filteredHostels.length);
-  }, [activeArea, filteredHostels.length]);
+  }, [activeArea]);
 
-   // Function to check if no hostels are available in the selected area
-   const noHostelsAvailable = () => {
+  // Function to check if no hostels are available in the selected area
+  const noHostelsAvailable = () => {
     if (activeArea) {
-      const areaHostels = hostelsData.filter(
-        group => group.area.toLowerCase() === activeArea.toLowerCase()
+      return !hostelsData.some(hostel => 
+        hostel.area.toLowerCase() === activeArea.toLowerCase()
       );
-      return areaHostels.length === 0 || areaHostels[0].hostels.length === 0;
     }
     return false;
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center space-y-6">
+        {/* Enhanced Loading Animation */}
+        <div className="relative w-20 h-20">
+          <div className="absolute inset-0 rounded-full border-4 border-slate-200"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-t-amber-500 border-r-amber-500 animate-spin"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-3 h-3 rounded-full bg-amber-500 animate-pulse"></div>
+          </div>
+        </div>
+        
+        {/* Text with fade animation */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="text-center space-y-2"
+        >
+          <h3 className="text-xl font-medium text-slate-800">Loading HostelHub</h3>
+          <p className="text-slate-500">Preparing your premium experience</p>
+        </motion.div>
+        
+        {/* Optional progress bar */}
+        <div className="w-64 bg-slate-200 rounded-full h-1.5 mt-4 overflow-hidden">
+          <motion.div 
+            className="bg-gradient-to-r from-amber-400 to-amber-600 h-full rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: '100%' }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 mt-[70px]">
-      {/* Hero Section */}
-      <motion.section 
+<motion.section 
         initial="hidden" 
         whileInView="visible" 
         variants={fadeIn} 
@@ -118,12 +198,13 @@ const Page = () => {
           className="mb-16 text-center"
         >
           <h2 className="text-3xl font-light text-slate-800 mb-4 font-serif">
-            Curated Selection
+            {activeArea ? `Hostels in ${activeArea}` : 'Curated Selection'}
           </h2>
           <div className="w-16 h-0.5 bg-amber-500 mx-auto mb-6" />
           <p className="text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Each property in our collection meets rigorous standards for quality, 
-            comfort, and student-focused amenities.
+            {activeArea 
+              ? `Premium accommodations available in ${activeArea}`
+              : 'Each property in our collection meets rigorous standards for quality, comfort, and student-focused amenities.'}
           </p>
         </motion.div>
 
@@ -188,122 +269,110 @@ const Page = () => {
 
         {/* Hostel Cards */}
         <motion.section
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-        variants={staggerContainer}
-        initial="hidden"
-        animate="visible"
-      >
-        {noHostelsAvailable() ? (
-          <div className="col-span-full text-center py-16">
-            <h3 className="text-xl font-medium text-slate-700 mb-4">
-              No hostel available in {activeArea} area
-            </h3>
-            <p className="text-slate-500 mb-6">
-              Please check back later or explore other areas.
-            </p>
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+        >
+          {noHostelsAvailable() ? (
+            <div className="col-span-full text-center py-16">
+              <h3 className="text-xl font-medium text-slate-700 mb-4">
+                No hostels available in {activeArea} area
+              </h3>
+              <button
+                onClick={() => setActiveArea(null)}
+                className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg"
+              >
+                View All Hostels
+              </button>
+            </div>
+          ) : (
+            filteredHostels.slice(0, visibleHostels).map((hostel) => (
+              <motion.div
+                key={hostel.id}
+                className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 group relative"
+                whileHover={{ y: -8 }}
+                variants={fadeIn}
+              >
+                {/* Hostel Image */}
+                <div className="relative overflow-hidden">
+                  <img 
+                    src={hostel.images[0] || '/default-hostel-image.jpg'} 
+                    alt={hostel.name} 
+                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" 
+                  />
+                  <div className="absolute top-4 left-4 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                    Premium
+                  </div>
+                </div>
+                
+                {/* Hostel Details */}
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-3">
+                    <h2 className="text-xl font-semibold text-slate-800">{hostel.name}</h2>
+                    <div className="flex items-center bg-slate-100 px-2 py-1 rounded">
+                      <svg className="w-4 h-4 text-amber-500 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                      </svg>
+                      <span className="text-sm font-medium ml-1">4.8</span>
+                    </div>
+                  </div>
+                  
+                  <p className="text-slate-600 mb-4 flex items-center text-sm">
+                    <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    {hostel.location}
+                  </p>
+                  
+                  <p className="text-slate-500 text-sm mb-5">{hostel.shortDescription}</p>
+
+                  {/* Facilities */}
+                  <div className="mb-6">
+                    <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">
+                      Key Amenities
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {hostel.facilities.slice(0, 4).map((facility, index) => (
+                        <span key={index} className="text-xs bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full">
+                          {facility}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center border-t border-slate-100 pt-4">
+                    <div>
+                      <p className="text-xs text-slate-500 mb-1">Starting from</p>
+                      <p className="text-xl font-bold text-slate-800">{hostel.price}</p>
+                    </div>
+                    <Link 
+                      href={`/hostel/${hostel.id}`}
+                      className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium rounded-lg transition-colors duration-300 flex items-center"
+                    >
+                      <span>View Details</span>
+                      <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </Link>
+                  </div>
+                </div>
+              </motion.div>
+            ))
+          )}
+        </motion.section>
+
+        {!noHostelsAvailable() && visibleHostels < filteredHostels.length && (
+          <div className="flex justify-center mt-16">
             <button
-              onClick={() => setActiveArea(null)}
-              className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors duration-300"
+              onClick={loadMoreHostels}
+              className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-medium"
             >
-              View All Hostels
+              Show More Properties
             </button>
           </div>
-        ) : (
-          filteredHostels.slice(0, visibleHostels).map((hostel) => (
-            <motion.div
-              key={hostel.id}
-              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 group relative"
-              whileHover={{ y: -8 }}
-              variants={fadeIn}
-            >
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 rounded-xl z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              
-              {/* Hostel Image */}
-              <div className="relative overflow-hidden">
-                <img 
-                  src={hostel.Image[0]} 
-                  alt={hostel.name} 
-                  className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" 
-                />
-                <div className="absolute top-4 left-4 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
-                  Premium
-                </div>
-              </div>
-              
-              {/* Hostel Details */}
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-3">
-                  <h2 className="text-xl font-semibold text-slate-800">{hostel.name}</h2>
-                  <div className="flex items-center bg-slate-100 px-2 py-1 rounded">
-                    <svg className="w-4 h-4 text-amber-500 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                      <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                    </svg>
-                    <span className="text-sm font-medium ml-1">4.8</span>
-                    <span className="text-xs text-slate-500 ml-1">(24)</span>
-                  </div>
-                </div>
-                
-                <p className="text-slate-600 mb-4 flex items-center text-sm">
-                  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  {hostel.location}
-                </p>
-                
-                <p className="text-slate-500 text-sm mb-5">{hostel.shortDescription}</p>
-
-                {/* Facilities */}
-                <div className="mb-6">
-                  <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">Key Amenities</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {hostel.facilities.slice(0, 4).map((facility, index) => (
-                      <span key={index} className="text-xs bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full flex items-center">
-                        <svg className="w-3 h-3 mr-1 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        {facility}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center border-t border-slate-100 pt-4">
-                  <div>
-                    <p className="text-xs text-slate-500 mb-1">Starting from</p>
-                    <p className="text-xl font-bold text-slate-800">{hostel.price}</p>
-                  </div>
-                  <Link 
-                    href={`/hostel/${hostel.id}`}
-                    className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium rounded-lg transition-colors duration-300 flex items-center"
-                  >
-                    <span>View Details</span>
-                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  </Link>
-                </div>
-              </div>
-            </motion.div>
-          ))
         )}
-      </motion.section>
-
-        {/* Load More Button */}
-        {/* Load More Button - only show if there are hostels and more to load */}
-      {!noHostelsAvailable() && visibleHostels < filteredHostels.length && (
-        <div className="flex justify-center mt-16">
-          <button
-            onClick={loadMoreHostels}
-            className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-medium transition-all duration-300 flex items-center"
-          >
-            Show More Properties
-            <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 13l-7 7-7-7m14-8l-7 7-7-7" />
-            </svg>
-          </button>
-        </div>
-      )}
       </div>
 
       {/* CTA Section */}
