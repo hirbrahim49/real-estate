@@ -53,6 +53,7 @@ const Page = () => {
     
     fetchData();
   }, []);
+  
 
   // Handle area from URL query parameter
   useEffect(() => {
@@ -63,16 +64,17 @@ const Page = () => {
       }
     }
   }, [searchParams]);
+// Get unique areas (with proper formatting)
+const allAreas = [...new Set(hostelsData.map(hostel => 
+  hostel.area.trim()
+))].filter(Boolean).sort();
 
-  // Get unique areas
-  const allAreas = [...new Set(hostelsData.map((hostel) => hostel.area))].sort();
-
-  // Filter hostels
-  const filteredHostels = activeArea
-    ? hostelsData.filter(hostel => 
-        hostel.area.toLowerCase() === activeArea.toLowerCase()
-      )
-    : hostelsData;
+// Enhanced filter function
+const filteredHostels = activeArea
+  ? hostelsData.filter(hostel => 
+      hostel.area.trim().toLowerCase() === activeArea.trim().toLowerCase()
+    )
+  : hostelsData;
 
   const loadMoreHostels = () => setVisibleHostels(prev => prev + 6);
 
@@ -80,7 +82,11 @@ const Page = () => {
   useEffect(() => {
     setVisibleHostels(6);
   }, [activeArea]);
-
+useEffect(() => {
+  console.log("Active Area:", activeArea);
+  console.log("All Areas:", allAreas);
+  console.log("Filtered Hostels:", filteredHostels);
+}, [activeArea, filteredHostels]);
   // Function to check if no hostels are available in the selected area
   const noHostelsAvailable = () => {
     if (activeArea) {
@@ -233,14 +239,14 @@ const Page = () => {
             {allAreas.map((area) => (
               <button
                 key={area}
-                onClick={() => setActiveArea(area)}
+                onClick={() => setActiveArea(area.trim())}
                 className={`px-6 py-3 rounded-lg transition-all font-medium text-sm tracking-wider ${
                   activeArea === area
                     ? "bg-slate-800 text-white shadow-md"
                     : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300"
                 }`}
               >
-                {area}
+               {area.trim()}
               </button>
             ))}
           </div>

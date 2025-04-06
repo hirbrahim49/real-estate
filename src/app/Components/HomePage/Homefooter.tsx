@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import { motion } from 'framer-motion';
-
+import Link from 'next/link';
 const Footer = () => {
   // Animation variants for footer items
   const footerVariants = {
@@ -126,7 +126,7 @@ const Footer = () => {
         transition={{ delay: 0.8 }}
         className="text-center text-sm mt-8 text-amber-600"
       >
-        &copy; {new Date().getFullYear()} EstateHub - All Rights Reserved.
+        &copy; {new Date().getFullYear()} EstateHub - All Rights <Link href="/submitHostel"> Reserved </Link>.
       </motion.div>
     </footer>
   );

@@ -4,13 +4,19 @@ require("dotenv").config();
 const sheets = google.sheets("v4");
 
 async function fetchHostels() {
-  const auth = new google.auth.JWT(
-    process.env.GOOGLE_CLIENT_EMAIL,
-    null,
-    process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-    ["https://www.googleapis.com/auth/spreadsheets.readonly"]
-  );
+  // Add this to your auth initialization
+const auth = new google.auth.JWT(
+  process.env.GOOGLE_CLIENT_EMAIL,
+  null,
+  process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+  ['https://www.googleapis.com/auth/spreadsheets']
+);
 
+// Add error handling for auth
+await auth.authorize().catch(err => {
+  console.error('Authentication error:', err);
+  throw new Error('Failed to authenticate with Google Sheets');
+});
   try {
     const response = await sheets.spreadsheets.values.get({
       auth,
@@ -39,3 +45,4 @@ async function fetchHostels() {
     return [];
   }
 }
+module.exports = { fetchHostels };
