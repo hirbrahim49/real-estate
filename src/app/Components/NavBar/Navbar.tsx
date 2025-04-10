@@ -202,36 +202,41 @@ const Navbar = () => {
         <div className="relativ text-white mb-8">
           <input
             type="text"
-            placeholder="Search areas..."
+            placeholder={isLoadingAreas ? "Loading areas..." : "Search areas..."}
             className="w-full border border-white-300 rounded-full px-5 py-3 pl-12 focus:outline-none focus:ring-2 focus:ring-amber-500 placeholder-white-400"
-            value={searchQuery}
-            onChange={handleSearch}
+                value={searchQuery}
+                onChange={handleSearch}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+                disabled={isLoadingAreas}
           />
           {/* <FaSearch className="absolute left-4 top-4 text-amber-500" /> */}
 
           {/* Mobile Search Results */}
-          {filteredAreas.length > 0 && (
-            <div className="absolute z-50 mt-2 w-full bg-white rounded-lg shadow-lg border border-gray-300 overflow-hidden">
-              {filteredAreas.map((area, index) => (
-                <div
-                  key={index}
-                  className="px-4 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0 transition-colors"
-                  onClick={() => {
-                    handleAreaSelect(area);
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  <div className="flex items-center">
-                    <svg className="w-5 h-5 mr-3 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <span className="text-black">{area}</span>
+          {(filteredAreas.length > 0 && isSearchFocused) && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-xl border border-gray-300 overflow-hidden"
+              >
+                {filteredAreas.map((area, index) => (
+                  <div
+                    key={index}
+                    className="px-4 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0 transition-colors"
+                    onClick={() => handleAreaSelect(area)}
+                    onMouseDown={(e) => e.preventDefault()}
+                  >
+                    <div className="flex items-center">
+                      <svg className="w-4 h-4 mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span className="text-slate-700">{area}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </motion.div>
+            )}
         </div>
 
         {/* Navigation Links */}

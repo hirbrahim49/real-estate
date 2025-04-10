@@ -126,7 +126,7 @@ const Footer = () => {
         transition={{ delay: 0.8 }}
         className="text-center text-sm mt-8 text-amber-600"
       >
-        &copy; {new Date().getFullYear()} EstateHub - All Rights <Link href="/submitHostel"> Reserved </Link>.
+        &copy; {new Date().getFullYear()} EstateHub - All Rights <Link href="/submitHostel "> Reserved </Link>.
       </motion.div>
     </footer>
   );

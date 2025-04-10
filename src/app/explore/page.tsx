@@ -216,6 +216,7 @@ useEffect(() => {
 
         {/* Filter Buttons */}
         <motion.div 
+        id="alllocations"
           className="mb-16"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
