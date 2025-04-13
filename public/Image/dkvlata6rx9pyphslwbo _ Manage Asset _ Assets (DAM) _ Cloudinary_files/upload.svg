@@ -1,0 +1,100 @@
+
+
+
+    <svg width="216" height="216" viewBox="0 0 216 164" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <style>
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.floating-image {
+  animation: float 3s ease-in-out infinite;
+}
+
+.floating-image:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.floating-image:nth-child(2) {
+  animation-delay: 0.5s;
+}
+
+.floating-image:nth-child(3) {
+  animation-delay: 1s;
+}
+
+.container {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f0f0f0;
+}
+</style>
+      <g class="floating-image"><path fill="#B6D2FF" d="m48.303 15.891 103.63-13.606 8.983 68.412-103.63 13.607z" />
+        <path stroke="#fff" stroke-width="3" d="m48.303 15.891 103.63-13.606 8.983 68.412-103.63 13.607z" />
+        <path d="m77.847 73.068 72.664-9.54c.471-.062.294-1.41-.177-1.349l-72.663 9.54c-.472.063-.295 1.41.176 1.349Z"
+          fill="#0A0C0F" />
+        <path d="m65.753 74.926 13.191-1.732c.46-.06.2-2.043-.26-1.983l-13.191 1.732c-.46.06-.2 2.043.26 1.983Z"
+          fill="#3448C5" />
+        <path
+          d="M81.126 71.954a2.063 2.063 0 0 1-1.786 2.308 2.063 2.063 0 0 1-2.32-1.769 2.063 2.063 0 0 1 1.785-2.307 2.063 2.063 0 0 1 2.32 1.768ZM113.351 41.444c.516-4.986-3.139-9.436-8.162-9.937-5.023-.502-9.513 3.134-10.028 8.121-.515 4.987 3.14 9.436 8.162 9.938 5.023.501 9.513-3.135 10.028-8.122Z"
+          fill="#3448C5" />
+        <path
+          d="m101.755 37.876.775 5.907c.076.574.765.828 1.208.448l4.023-3.533a.715.715 0 0 0-.156-1.185l-4.798-2.375a.731.731 0 0 0-1.051.745l-.001-.007Z"
+          fill="#fff" /></g>
+          <g class="floating-image">
+      <g clip-path="url(#a)" >
+        <path fill="#B6D2FF" d="m140.554 35.66 74.632 16.074-10.764 49.976-74.632-16.074z" />
+        <circle cx="155.181" cy="55.163" r="5.943" transform="rotate(-6.312 155.181 55.163)" fill="#fff" />
+        <path fill-rule="evenodd" clip-rule="evenodd"
+          d="m214.159 67.475-21.76 52.459-75.644-29.694 8.348-20.126c12.587-2.766 30.34-3.43 50.572 3.402 7.362 1.588 24.998 2.482 38.484-6.041Z"
+          fill="#4698F7" />
+      </g>
+      <path stroke="#fff" stroke-width="3" d="m141.704 37.442 71.699 15.443-10.132 47.043-71.7-15.443z" />
+      </g>
+
+      <g class="floating-image">
+      
+      <g clip-path="url(#b)">
+        <path fill="#B6D2FF" d="m8.474 58 96.344 11.26-8.474 72.507L0 130.507z" />
+        <circle cx="28.577" cy="83.424" r="11" transform="rotate(-11.8 28.577 83.424)" fill="#fff" />
+        <path fill-rule="evenodd" clip-rule="evenodd"
+          d="m107.006 94.257-12.635 64.395-97.925-19.213 4.857-24.754c9.865-4.257 23.195-7.638 39.093-6.835 28.838 1.458 54.163-9.575 63.221-15.274l3.389 1.68Z"
+          fill="#FFB14E" />
+      </g>
+      <path stroke="#fff" stroke-width="3" d="m9.79 59.664 93.364 10.912-8.126 69.527-93.364-10.912z" />
+
+      </g>
+
+      <g class="floating-image">
+      <g clip-path="url(#c)">
+        <path fill="#B6D2FF" d="m76.363 86.667 111.405-9.045 6.117 75.339-111.405 9.045z" />
+        <circle cx="162.666" cy="103.7" r="11.614" transform="rotate(-4.642 162.666 103.7)" fill="#fff" />
+        <path
+          d="M123.565 131.07c-23.471-11.724-49.79-8.057-60.017-4.757l3.107 38.267 125.839-10.217-1.285-15.822c-12.768 2.394-44.173 4.253-67.644-7.471Z"
+          fill="#2E79E9" />
+      </g>
+      <path stroke="#fff" stroke-width="3" d="m77.979 88.04 108.415-8.802 5.874 72.348-108.415 8.803z" />
+      </g>
+      <defs>
+        <clipPath id="a">
+          <path transform="rotate(12.155 140.554 35.66)" fill="#fff" d="M140.554 35.66h76.343v51.122h-76.343z" />
+        </clipPath>
+        <clipPath id="b">
+          <path transform="rotate(6.666 8.474 58)" fill="#fff" d="M8.474 58h97v73h-97z" />
+        </clipPath>
+        <clipPath id="c">
+          <path transform="rotate(-4.642 76.363 86.667)" fill="#fff" d="M76.363 86.667h111.772v75.587H76.363z" />
+        </clipPath>
+      </defs>
+    </svg>

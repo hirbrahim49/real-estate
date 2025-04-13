@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import DirectImageUpload from '../Components/DirectImageUpload';
+import { Trash2 } from 'lucide-react';
 
 const facilityOptions = [
   '24/7 Electricity',
@@ -21,7 +23,7 @@ export default function AddHostelPage() {
     name: '',
     location: '',
     shortDescription: '',
-    images: ['', '', ''],
+    images: [] as string[], // Changed to empty array
     video: '',
     price: '',
     facilities: [] as string[],
@@ -29,17 +31,11 @@ export default function AddHostelPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); // Set to false by default for form display
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleImageChange = (index: number, value: string) => {
-    const newImages = [...formData.images];
-    newImages[index] = value;
-    setFormData(prev => ({ ...prev, images: newImages }));
   };
 
   const handleFacilityToggle = (facility: string) => {
@@ -51,13 +47,26 @@ export default function AddHostelPage() {
     }));
   };
 
+  const handleImageUpload = (url: string) => {
+    setFormData(prev => ({
+      ...prev,
+      images: [...prev.images, url].slice(0, 3) // Keep only 3 images
+    }));
+  };
+  
+  const handleImageRemove = (url: string) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter(img => img !== url)
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
 
-    // Basic validation
-    if (!formData.area || !formData.name || !formData.images[0] || !formData.price) {
+    if (!formData.area || !formData.name || formData.images.length === 0 || !formData.price) {
       setError('Please fill in all required fields');
       setIsSubmitting(false);
       return;
@@ -72,14 +81,10 @@ export default function AddHostelPage() {
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to submit form');
-      }
+      if (!response.ok) throw new Error('Failed to submit form');
 
       const data = await response.json();
-      if (data.success) {
-        router.push('/explore');
-      }
+      if (data.success) router.push('/explore');
     } catch (err) {
       setError('Failed to add hostel. Please try again.');
       console.error(err);
@@ -118,6 +123,10 @@ export default function AddHostelPage() {
       </div>
     );
   }
+  console.log({
+    cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+  })
 
   return (
     <div className="min-h-screen mt-[90px] bg-gradient-to-b from-slate-50 to-slate-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -127,7 +136,7 @@ export default function AddHostelPage() {
         transition={{ duration: 0.4 }}
         className="max-w-4xl mx-auto"
       >
-        <div className="text-center mb-10">
+       <div className="text-center mb-10">
           <motion.h1 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -146,6 +155,7 @@ export default function AddHostelPage() {
           </motion.p>
         </div>
 
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -161,17 +171,14 @@ export default function AddHostelPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 flex items-start"
               >
-                <svg className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
+                {/* Error icon */}
                 <div>{error}</div>
               </motion.div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="space-y-8">
-                {/* Basic Information Section */}
-                <div>
+              <div>
                   <h2 className="text-xl font-semibold text-slate-800 mb-6 pb-2 border-b border-slate-200">
                     Basic Information
                   </h2>
@@ -242,61 +249,47 @@ export default function AddHostelPage() {
                   </div>
                 </div>
 
-                {/* Media Section */}
+
+                {/* Media Section - UPDATED */}
                 <div>
                   <h2 className="text-xl font-semibold text-slate-800 mb-6 pb-2 border-b border-slate-200">
                     Media
                   </h2>
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    {[0, 1, 2].map((index) => (
-                      <div key={index}>
-                        <label htmlFor={`image-${index}`} className="block text-sm font-medium text-slate-700 mb-1">
-                          {index === 0 ? 'Main Image URL *' : `Image ${index + 1} URL`}
-                        </label>
-                        <input
-                          type="url"
-                          id={`image-${index}`}
-                          required={index === 0}
-                          value={formData.images[index]}
-                          onChange={(e) => handleImageChange(index, e.target.value)}
-                          className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
-                          placeholder="https://example.com/image.jpg"
-                        />
-                        {formData.images[index] && (
-                          <div className="mt-2 w-full h-40 bg-slate-100 rounded-lg overflow-hidden">
-                            <img 
-                              src={formData.images[index]} 
-                              alt={`Preview ${index + 1}`} 
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgYWxpZ25tZW50LWJhc2VsaW5lPSJtaWRkbGUiIGZpbGw9IiNjMGMwYzAiPkltYWdlIG5vdCBhdmFpbGFibGU8L3RleHQ+PC9zdmc+'
-                              }}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                  
+                  <div className="mb-8">
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Hostel Images <span className="text-amber-600">*</span>
+                    </label>
+                    <DirectImageUpload
+                      onUpload={handleImageUpload}
+                      onRemove={handleImageRemove}
+                      existingImages={formData.images}
+                      maxFiles={3}
+                    />
+                    <p className="mt-1 text-xs text-slate-500">
+                      Upload at least one image (max 3)
+                    </p>
+                  </div>
 
-                    <div>
-                      <label htmlFor="video" className="block text-sm font-medium text-slate-700 mb-1">
-                        Video URL (optional)
-                      </label>
-                      <input
-                        type="url"
-                        id="video"
-                        name="video"
-                        value={formData.video}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
-                        placeholder="https://youtube.com/embed/video"
-                      />
-                    </div>
+                  {/* Video URL Field */}
+                  <div className="mt-8">
+                    <label htmlFor="video" className="block text-sm font-medium text-slate-700 mb-1">
+                      Video URL (optional)
+                    </label>
+                    <input
+                      type="url"
+                      id="video"
+                      name="video"
+                      value={formData.video}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                      placeholder="https://youtube.com/embed/video"
+                    />
                   </div>
                 </div>
 
-                {/* Pricing & Contact Section */}
-                <div>
+                  {/* Pricing & Contact Section */}
+                  <div>
                   <h2 className="text-xl font-semibold text-slate-800 mb-6 pb-2 border-b border-slate-200">
                     Pricing & Contact
                   </h2>
@@ -389,7 +382,7 @@ export default function AddHostelPage() {
                     'Submit Hostel Listing'
                   )}
                 </motion.button>
-              </div>
+                </div>
             </form>
           </div>
         </motion.div>

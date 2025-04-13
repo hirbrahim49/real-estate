@@ -1,5 +1,5 @@
 const { google } = require("googleapis");
-require("dotenv").config();
+require("dotenv").config({ path: '.env.local' }); // Changed to load from .env.local
 
 const sheets = google.sheets("v4");
 

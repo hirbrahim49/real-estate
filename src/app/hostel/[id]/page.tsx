@@ -29,9 +29,12 @@ const HostelDetailPage = () => {
   const [showVideo, setShowVideo] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Calculate valid images after hostel is loaded
+  const validImages = hostel ? hostel.images.filter((img: string) => img && img.trim() !== '') : [];
+
   const sliderSettings = {
-    dots: true,
-    infinite: true,
+    dots: validImages.length > 1,
+    infinite: validImages.length > 1,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
@@ -89,7 +92,6 @@ const HostelDetailPage = () => {
     : `https://wa.me/${getWhatsAppNumber()}?text=${encodeURIComponent(generateWhatsAppMessage())}`;
 
   useEffect(() => {
-    // Simulate loading for demonstration
     const timer = setTimeout(() => {
       setLoading(false);
     }, 1500);
@@ -100,7 +102,6 @@ const HostelDetailPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center space-y-6">
-        {/* Enhanced Loading Animation */}
         <div className="relative w-20 h-20">
           <div className="absolute inset-0 rounded-full border-4 border-slate-200"></div>
           <div className="absolute inset-0 rounded-full border-4 border-t-amber-500 border-r-amber-500 animate-spin"></div>
@@ -109,7 +110,6 @@ const HostelDetailPage = () => {
           </div>
         </div>
         
-        {/* Text with fade animation */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -120,7 +120,6 @@ const HostelDetailPage = () => {
           <p className="text-slate-500">Preparing your premium experience</p>
         </motion.div>
         
-        {/* Optional progress bar */}
         <div className="w-64 bg-slate-200 rounded-full h-1.5 mt-4 overflow-hidden">
           <motion.div 
             className="bg-gradient-to-r from-amber-400 to-amber-600 h-full rounded-full"
@@ -169,17 +168,26 @@ const HostelDetailPage = () => {
         >
           {/* Gallery Section */}
           <div className="relative rounded-xl overflow-hidden shadow-xl mb-8">
-            <Slider {...sliderSettings}>
-              {hostel.images.map((image, index) => (
-                <div key={index} className="relative h-[500px]">
-                  <img
-                    src={image}
-                    alt={`${hostel.name} showcase ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-            </Slider>
+            {validImages.length > 0 ? (
+              <Slider {...sliderSettings}>
+                {validImages.map((image: string, index: number) => (
+                  <div key={index} className="relative h-[500px]">
+                    <img
+                      src={image}
+                      alt={`${hostel.name} showcase ${index + 1}`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.currentTarget.src = '/placeholder-image.jpg');
+                      }}
+                    />
+                  </div>
+                ))}
+              </Slider>
+            ) : (
+              <div className="h-[500px] bg-slate-100 flex items-center justify-center">
+                <span className="text-slate-400">No images available</span>
+              </div>
+            )}
             
             {/* Premium Badge */}
             <div className="absolute top-6 left-6 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-medium px-4 py-2 rounded-full shadow-lg uppercase tracking-wider flex items-center">
@@ -253,7 +261,7 @@ const HostelDetailPage = () => {
               <div className="mt-8 pt-6 border-t border-slate-100">
                 <h4 className="text-sm uppercase tracking-wider text-slate-500 mb-4">Key Features</h4>
                 <ul className="space-y-3">
-                  {hostel.facilities.slice(0, 5).map((facility, index) => (
+                  {hostel.facilities.slice(0, 5).map((facility: string, index: number) => (
                     <li key={index} className="flex items-center">
                       <FiCheckCircle className="text-amber-500 mr-3 flex-shrink-0" />
                       <span className="text-slate-700">{facility}</span>
@@ -349,7 +357,7 @@ const HostelDetailPage = () => {
               >
                 <h3 className="text-2xl font-serif font-light text-slate-800 mb-8">Amenities & Services</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {hostel.facilities.map((facility, index) => (
+                  {hostel.facilities.map((facility: string, index: number) => (
                     <div key={index} className="bg-slate-50 p-5 rounded-lg border border-slate-100">
                       <div className="flex items-center">
                         <div className="bg-amber-100 p-2 rounded-full mr-4">
