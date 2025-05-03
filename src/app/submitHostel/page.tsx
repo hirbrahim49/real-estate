@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import DirectImageUpload from '../Components/DirectImageUpload';
+import DirectVideoUpload from '../Components/DirectVideoUpload';
 import { Trash2 } from 'lucide-react';
 
 const facilityOptions = [
@@ -23,8 +24,9 @@ export default function AddHostelPage() {
     name: '',
     location: '',
     shortDescription: '',
-    images: [] as string[], // Changed to empty array
-    video: '',
+    images: [] as string[],
+    videoFile: '', // For uploaded video
+    videoUrl: '', // For YouTube/external URLs
     price: '',
     facilities: [] as string[],
     contact: ''
@@ -61,6 +63,21 @@ export default function AddHostelPage() {
     }));
   };
 
+  const handleVideoUpload = (url: string) => {
+    setFormData(prev => ({
+      ...prev,
+      videoFile: url,
+      videoUrl: '' // Clear URL field if uploading a file
+    }));
+  };
+
+  const handleVideoRemove = () => {
+    setFormData(prev => ({
+      ...prev,
+      videoFile: ''
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -78,7 +95,10 @@ export default function AddHostelPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          video: formData.videoFile || formData.videoUrl // Combine both video fields
+        }),
       });
 
       if (!response.ok) throw new Error('Failed to submit form');
@@ -123,10 +143,6 @@ export default function AddHostelPage() {
       </div>
     );
   }
-  console.log({
-    cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-    uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
-  })
 
   return (
     <div className="min-h-screen mt-[90px] bg-gradient-to-b from-slate-50 to-slate-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -136,7 +152,7 @@ export default function AddHostelPage() {
         transition={{ duration: 0.4 }}
         className="max-w-4xl mx-auto"
       >
-       <div className="text-center mb-10">
+        <div className="text-center mb-10">
           <motion.h1 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -155,7 +171,6 @@ export default function AddHostelPage() {
           </motion.p>
         </div>
 
-
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -171,14 +186,13 @@ export default function AddHostelPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 flex items-start"
               >
-                {/* Error icon */}
                 <div>{error}</div>
               </motion.div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="space-y-8">
-              <div>
+                <div>
                   <h2 className="text-xl font-semibold text-slate-800 mb-6 pb-2 border-b border-slate-200">
                     Basic Information
                   </h2>
@@ -249,13 +263,11 @@ export default function AddHostelPage() {
                   </div>
                 </div>
 
-
-                {/* Media Section - UPDATED */}
+                {/* Media Section */}
                 <div>
                   <h2 className="text-xl font-semibold text-slate-800 mb-6 pb-2 border-b border-slate-200">
                     Media
                   </h2>
-                  
                   <div className="mb-8">
                     <label className="block text-sm font-medium text-slate-700 mb-2">
                       Hostel Images <span className="text-amber-600">*</span>
@@ -271,25 +283,45 @@ export default function AddHostelPage() {
                     </p>
                   </div>
 
-                  {/* Video URL Field */}
+                  {/* Video Section */}
                   <div className="mt-8">
-                    <label htmlFor="video" className="block text-sm font-medium text-slate-700 mb-1">
-                      Video URL (optional)
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Hostel Video (optional)
                     </label>
-                    <input
-                      type="url"
-                      id="video"
-                      name="video"
-                      value={formData.video}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
-                      placeholder="https://youtube.com/embed/video"
-                    />
+                    
+                    <div className="mb-4">
+                      <DirectVideoUpload
+                        onUpload={handleVideoUpload}
+                        onRemove={handleVideoRemove}
+                        existingVideo={formData.videoFile}
+                      />
+                    </div>
+
+                    <p className="text-sm text-slate-600 mb-2 text-center">- OR -</p>
+
+                    <div>
+                      <label htmlFor="videoUrl" className="block text-sm font-medium text-slate-700 mb-1">
+                        Paste video URL (YouTube, etc.)
+                      </label>
+                      <input
+                        type="url"
+                        id="videoUrl"
+                        name="videoUrl"
+                        value={formData.videoUrl}
+                        onChange={(e) => setFormData(prev => ({
+                          ...prev,
+                          videoUrl: e.target.value,
+                          videoFile: e.target.value ? '' : prev.videoFile // Clear file if URL is entered
+                        }))}
+                        className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                        placeholder="https://youtube.com/embed/..."
+                      />
+                    </div>
                   </div>
                 </div>
 
-                  {/* Pricing & Contact Section */}
-                  <div>
+                {/* Pricing & Contact Section */}
+                <div>
                   <h2 className="text-xl font-semibold text-slate-800 mb-6 pb-2 border-b border-slate-200">
                     Pricing & Contact
                   </h2>
@@ -382,7 +414,7 @@ export default function AddHostelPage() {
                     'Submit Hostel Listing'
                   )}
                 </motion.button>
-                </div>
+              </div>
             </form>
           </div>
         </motion.div>

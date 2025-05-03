@@ -12,6 +12,27 @@ const Navbar = () => {
   const [isSearchFocused, setIsSearchFocused] = useState<boolean>(false);
   const [isLoadingAreas, setIsLoadingAreas] = useState<boolean>(true);
 
+  // Animation variants for the HostelHub text
+  const logoVariants = {
+    hidden: { opacity: 0, y: -20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        ease: [0.16, 1, 0.3, 1]
+      }
+    },
+    hover: {
+      scale: 1.05,
+      color: "#d97706", // amber-600
+      transition: {
+        duration: 0.3,
+        ease: "easeOut"
+      }
+    }
+  };
+
   // Fetch areas from your API
   useEffect(() => {
     const fetchAreas = async () => {
@@ -68,21 +89,30 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 w-full bg-white shadow-md z-50 font-sans">
       <div className="w-[97%] md:w-[95%] lg:w-[90%] mx-auto flex justify-between items-center px-4 py-3 md:px-6 md:py-4">
-        {/* Logo & Site Name */}
+        {/* Logo & Site Name with Animation */}
         <div className="flex items-center space-x-2">
-          <img
+          <motion.img
             src="/Image/logo.png"
             alt="HostelHub Logo"
             className="w-10 h-10 md:w-12 md:h-12"
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
           />
-          <Link
-            href="/"
-            className="text-xl md:text-2xl lg:text-3xl font-bold text-black font-serif"
-          >
-            HostelHub
+          <Link href="/" passHref>
+            <motion.div
+              className="text-xl md:text-2xl lg:text-3xl font-bold text-black font-serif"
+              initial="hidden"
+              animate="visible"
+              whileHover="hover"
+              variants={logoVariants}
+            >
+              HostelHub
+            </motion.div>
           </Link>
         </div>
 
+        {/* Rest of your navbar code remains the same */}
         {/* Navigation Links (Hidden on md and smaller screens) */}
         <ul className="hidden lg:flex space-x-8 font-medium text-gray-700 text-lg">
           <motion.li whileHover={{ y: -2 }} className="hover:text-amber-600 transition">
@@ -108,8 +138,8 @@ const Navbar = () => {
 
         {/* Search Bar & WhatsApp Icon */}
         <div className="flex items-center space-x-4">
-  {/* Enhanced Search Bar */}
-  <div className="relative hidden lg:block">
+          {/* Enhanced Search Bar */}
+          <div className="relative hidden lg:block">
             <div className="relative">
               <input
                 type="text"

@@ -2,9 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import Homefooter from "../../app/Components/HomePage/Homefooter";
-import { MdVerified } from "react-icons/md";
+import { MdVerified, MdLocationOn, MdPhone, MdEmail } from "react-icons/md";
+import { FaStar, FaRegStar, FaStarHalfAlt } from "react-icons/fa";
+import { FiArrowRight } from "react-icons/fi";
 
+// Animation configurations
 const fadeIn = {
   hidden: { opacity: 0, y: 30 },
   visible: (delay = 0) => ({
@@ -18,22 +20,41 @@ const fadeIn = {
   }),
 };
 
+const scaleUp = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut"
+    }
+  }
+};
+
 const Page = () => {
   const [loading, setLoading] = useState(true);
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
 
   useEffect(() => {
-    // Simulate loading for demonstration
     const timer = setTimeout(() => {
       setLoading(false);
     }, 1500);
 
-    return () => clearTimeout(timer);
+    // Auto-rotate testimonials
+    const testimonialInterval = setInterval(() => {
+      setActiveTestimonial(prev => (prev + 1) % 3);
+    }, 5000);
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(testimonialInterval);
+    };
   }, []);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center space-y-6">
-        {/* Enhanced Loading Animation */}
         <div className="relative w-20 h-20">
           <div className="absolute inset-0 rounded-full border-4 border-slate-200"></div>
           <div className="absolute inset-0 rounded-full border-4 border-t-amber-500 border-r-amber-500 animate-spin"></div>
@@ -42,7 +63,6 @@ const Page = () => {
           </div>
         </div>
         
-        {/* Text with fade animation */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -53,7 +73,6 @@ const Page = () => {
           <p className="text-slate-500">Preparing your premium experience</p>
         </motion.div>
         
-        {/* Optional progress bar */}
         <div className="w-64 bg-slate-200 rounded-full h-1.5 mt-4 overflow-hidden">
           <motion.div 
             className="bg-gradient-to-r from-amber-400 to-amber-600 h-full rounded-full"
@@ -65,6 +84,24 @@ const Page = () => {
       </div>
     );
   }
+
+  // Render star rating
+  const renderStars = (rating: number) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+
+    for (let i = 1; i <= 5; i++) {
+      if (i <= fullStars) {
+        stars.push(<FaStar key={i} className="text-amber-500" />);
+      } else if (i === fullStars + 1 && hasHalfStar) {
+        stars.push(<FaStarHalfAlt key={i} className="text-amber-500" />);
+      } else {
+        stars.push(<FaRegStar key={i} className="text-amber-500" />);
+      }
+    }
+    return stars;
+  };
 
   return (
     <div className="bg-slate-50 text-slate-600">
@@ -107,6 +144,22 @@ const Page = () => {
           >
             Connecting students to premium, verified accommodations with unparalleled transparency and convenience.
           </motion.p>
+
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            variants={fadeIn}
+            custom={0.3}
+            className="mt-12"
+          >
+            <a 
+              href="/explore" 
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full font-medium text-white hover:from-amber-600 hover:to-amber-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+            >
+              Explore Hostels
+              <FiArrowRight className="ml-2" />
+            </a>
+          </motion.div>
         </div>
       </section>
 
@@ -133,6 +186,21 @@ const Page = () => {
               Our platform provides verified listings with high-quality media, direct owner connections, 
               and transparent pricing—all designed with the modern student in mind.
             </p>
+            <div className="pt-4">
+              <ul className="space-y-3">
+                {[
+                  "100% Verified Listings",
+                  "Virtual Tours Available",
+                  "Direct Owner Communication",
+                  "No Hidden Fees"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center">
+                    <MdVerified className="text-amber-500 mr-2" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </motion.div>
           
           <motion.div
@@ -151,6 +219,32 @@ const Page = () => {
               className="relative rounded-3xl shadow-xl object-cover z-10 group-hover:shadow-2xl transition-all duration-500"
             />
           </motion.div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-16 bg-gradient-to-r from-slate-800 to-slate-900 text-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              { value: "500+", label: "Verified Hostels" },
+              { value: "10,000+", label: "Students Served" },
+              { value: "98%", label: "Satisfaction Rate" },
+              { value: "24/7", label: "Support Available" }
+            ].map((stat, i) => (
+              <motion.div
+                key={i}
+                initial="hidden"
+                whileInView="visible"
+                variants={fadeIn}
+                custom={i * 0.1}
+                className="text-center"
+              >
+                <div className="text-4xl font-bold mb-2 text-amber-400">{stat.value}</div>
+                <div className="text-sm uppercase tracking-wider text-slate-300">{stat.label}</div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -182,24 +276,24 @@ const Page = () => {
               { 
                 title: "Direct Contact", 
                 description: "Connect directly with property owners",
-                icon: <MdVerified className="text-3xl text-amber-500" />
+                icon: <MdPhone className="text-3xl text-amber-500" />
               },
               { 
                 title: "Premium Media", 
                 description: "High-quality photos and virtual tours",
-                icon: <MdVerified className="text-3xl text-amber-500" />
+                icon: <FaStar className="text-3xl text-amber-500" />
               },
               { 
                 title: "Transparent Pricing", 
                 description: "No hidden fees or surprise charges",
-                icon: <MdVerified className="text-3xl text-amber-500" />
+                icon: <MdLocationOn className="text-3xl text-amber-500" />
               },
             ].map((feature, i) => (
               <motion.div
                 key={i}
                 initial="hidden"
                 whileInView="visible"
-                variants={fadeIn}
+                variants={scaleUp}
                 custom={i * 0.1}
                 className="bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center"
               >
@@ -237,19 +331,31 @@ const Page = () => {
               name: "Ibrahim", 
               role: "Founder & Developer", 
               image: "/Image/Ibrahim.jpg",
-              bio: "Visionary behind HostelHub's innovative platform"
+              bio: "Visionary behind HostelHub's innovative platform",
+              social: {
+                twitter: "#",
+                linkedin: "#"
+              }
             },
             { 
               name: "Banji", 
               role: "Marketing Lead", 
               image: "/Image/Jane.jpg",
-              bio: "Connecting students with the perfect accommodations"
+              bio: "Connecting students with the perfect accommodations",
+              social: {
+                twitter: "#",
+                linkedin: "#"
+              }
             },
             { 
               name: "Emmanuel", 
-              role: "Influencer & promoter", 
+              role: "Influencer & Promoter", 
               image: "/Image/emma.jpg",
-              bio: "Ensuring seamless experiences for all users"
+              bio: "Ensuring seamless experiences for all users",
+              social: {
+                twitter: "#",
+                linkedin: "#"
+              }
             },
           ].map((member, i) => (
             <motion.div
@@ -272,7 +378,19 @@ const Page = () => {
               <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                 <h3 className="text-2xl font-semibold">{member.name}</h3>
                 <p className="text-amber-300 mb-2">{member.role}</p>
-                <p className="text-slate-200 text-sm">{member.bio}</p>
+                <p className="text-slate-200 text-sm mb-4">{member.bio}</p>
+                <div className="flex space-x-4">
+                  <a href={member.social.twitter} className="text-white hover:text-amber-300 transition-colors">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                    </svg>
+                  </a>
+                  <a href={member.social.linkedin} className="text-white hover:text-amber-300 transition-colors">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                    </svg>
+                  </a>
+                </div>
               </div>
             </motion.div>
           ))}
@@ -297,87 +415,103 @@ const Page = () => {
             </p>
           </motion.div>
           
-          <div className="grid gap-8 grid-cols-1 md:grid-cols-3">
-            {[
-              {
-                name: "John Doe",
-                review: "HostelHub completely transformed my accommodation search. The verified listings saved me from countless scams.",
-                year: "3rd Year - OAU",
-                rating: 5
-              },
-              {
-                name: "Jane Smith",
-                review: "The direct contact feature allowed me to negotiate terms directly with the owner. Unmatched convenience!",
-                year: "2nd Year - OAU",
-                rating: 5
-              },
-              {
-                name: "Alex Johnson",
-                review: "As an international student, the virtual tours were invaluable. I secured my hostel before even arriving in Nigeria.",
-                year: "4th Year - OAU",
-                rating: 5
-              },
-            ].map((testimony, i) => (
-              <motion.div
-                key={i}
-                initial="hidden"
-                whileInView="visible"
-                variants={fadeIn}
-                custom={i * 0.2}
-                className="bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300"
-              >
-                <div className="flex mb-4">
-                  {[...Array(testimony.rating)].map((_, i) => (
-                    <svg key={i} className="w-5 h-5 text-amber-500 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                      <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                    </svg>
-                  ))}
-                </div>
-                <p className="italic text-slate-700 mb-6">"{testimony.review}"</p>
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-800">{testimony.name}</h3>
-                  <p className="text-slate-500 text-sm">{testimony.year}</p>
-                </div>
-              </motion.div>
-            ))}
+          <div className="relative">
+            <div className="grid gap-8 grid-cols-1 md:grid-cols-3">
+              {[
+                {
+                  name: "John Doe",
+                  review: "HostelHub completely transformed my accommodation search. The verified listings saved me from countless scams.",
+                  year: "3rd Year - OAU",
+                  rating: 5
+                },
+                {
+                  name: "Jane Smith",
+                  review: "The direct contact feature allowed me to negotiate terms directly with the owner. Unmatched convenience!",
+                  year: "2nd Year - OAU",
+                  rating: 4.5
+                },
+                {
+                  name: "Alex Johnson",
+                  review: "As an international student, the virtual tours were invaluable. I secured my hostel before even arriving in Nigeria.",
+                  year: "4th Year - OAU",
+                  rating: 5
+                },
+              ].map((testimony, i) => (
+                <motion.div
+                  key={i}
+                  initial="hidden"
+                  whileInView="visible"
+                  variants={fadeIn}
+                  custom={i * 0.2}
+                  className={`bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 ${activeTestimonial === i ? 'ring-2 ring-amber-500' : ''}`}
+                  onClick={() => setActiveTestimonial(i)}
+                >
+                  <div className="flex mb-4">
+                    {renderStars(testimony.rating)}
+                  </div>
+                  <p className="italic text-slate-700 mb-6">"{testimony.review}"</p>
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-800">{testimony.name}</h3>
+                    <p className="text-slate-500 text-sm">{testimony.year}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+            
+            <div className="flex justify-center mt-8 space-x-2">
+              {[0, 1, 2].map((i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveTestimonial(i)}
+                  className={`w-3 h-3 rounded-full transition-all ${activeTestimonial === i ? 'bg-amber-500 w-6' : 'bg-slate-300'}`}
+                  aria-label={`View testimonial ${i + 1}`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Contact Us Section */}
-      <section className="py-24 px-6 bg-gradient-to-br from-amber-400 to-amber-500 text-white">
-        <div className="max-w-7xl mx-auto text-center">
+      {/* Contact CTA Section (Simplified) */}
+      <section className="py-24 px-6 bg-gradient-to-br from-amber-400 to-amber-500 text-white text-center">
+        <div className="max-w-4xl mx-auto">
           <motion.h2
             initial="hidden"
             whileInView="visible"
             variants={fadeIn}
-            custom={0.3}
-            className="text-3xl font-light mb-4 font-serif"
+            className="text-3xl font-light mb-6 font-serif"
           >
-            Get in Touch
+            Ready to find your perfect accommodation?
           </motion.h2>
+          
           <motion.p
             initial="hidden"
             whileInView="visible"
             variants={fadeIn}
-            custom={0.4}
-            className="text-lg mb-6"
+            custom={0.1}
+            className="text-xl mb-8"
           >
-            Have questions or want to list your accommodation? We are here to help.
+            Join thousands of students who found their ideal home through HostelHub
           </motion.p>
           
           <motion.div
             initial="hidden"
             whileInView="visible"
             variants={fadeIn}
-            custom={0.5}
-            className="flex justify-center gap-8"
+            custom={0.2}
+            className="flex flex-col sm:flex-row justify-center gap-4"
           >
-            <a href="mailto:hostelhubcontact@gmail.com" className="px-6 py-3 bg-white text-slate-800 rounded-full font-semibold hover:bg-amber-600 hover:text-white transition-all duration-300">
-              Email Us
+            <a 
+              href="/explore" 
+              className="px-8 py-4 bg-white text-slate-800 rounded-full font-semibold hover:bg-slate-100 transition-all duration-300 shadow-lg"
+            >
+              Browse Hostels
             </a>
-            <a href="tel:+2349135843102" className="px-6 py-3 bg-white text-slate-800 rounded-full font-semibold hover:bg-amber-600 hover:text-white transition-all duration-300">
-              Call Us
+            <a 
+              href="/contact" 
+              className="px-8 py-4 bg-transparent border-2 border-white rounded-full font-semibold hover:bg-white/10 transition-all duration-300"
+            >
+              Contact Us
             </a>
           </motion.div>
         </div>

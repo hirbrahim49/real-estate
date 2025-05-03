@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 
 interface Hostel {
   id: string;
@@ -18,15 +19,40 @@ interface Hostel {
 }
 
 const Page = () => {
-  // Animation variants
+  // Enhanced animation variants
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { 
+        duration: 0.6, 
+        ease: [0.16, 1, 0.3, 1] 
+      } 
+    },
+  };
+
+  const scaleUp = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut"
+      }
+    }
   };
 
   const staggerContainer = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+    visible: { 
+      opacity: 1, 
+      transition: { 
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      } 
+    },
   };
 
   // State declarations
@@ -34,13 +60,15 @@ const Page = () => {
   const [activeArea, setActiveArea] = useState<string | null>(null);
   const [visibleHostels, setVisibleHostels] = useState(6);
   const [loading, setLoading] = useState(true);
+  const [sortOption, setSortOption] = useState("recommended");
   const searchParams = useSearchParams();
 
   // Fetch data on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/hostels'); // Changed to relative path
+        setLoading(true);
+        const response = await fetch('/api/hostels');
         if (!response.ok) throw new Error('Failed to fetch');
         const data = await response.json();
         setHostelsData(data.data || []);
@@ -53,7 +81,6 @@ const Page = () => {
     
     fetchData();
   }, []);
-  
 
   // Handle area from URL query parameter
   useEffect(() => {
@@ -64,29 +91,42 @@ const Page = () => {
       }
     }
   }, [searchParams]);
-// Get unique areas (with proper formatting)
-const allAreas = [...new Set(hostelsData.map(hostel => 
-  hostel.area.trim()
-))].filter(Boolean).sort();
 
-// Enhanced filter function
-const filteredHostels = activeArea
-  ? hostelsData.filter(hostel => 
-      hostel.area.trim().toLowerCase() === activeArea.trim().toLowerCase()
-    )
-  : hostelsData;
+  // Get unique areas (with proper formatting)
+  const allAreas = [...new Set(hostelsData.map(hostel => 
+    hostel.area.trim()
+  ))].filter(Boolean).sort();
+
+  // Enhanced filter and sort function
+  const filteredHostels = activeArea
+    ? hostelsData.filter(hostel => 
+        hostel.area.trim().toLowerCase() === activeArea.trim().toLowerCase()
+      )
+    : hostelsData;
+
+  const sortedHostels = [...filteredHostels].sort((a, b) => {
+    switch(sortOption) {
+      case "price-low":
+        return parsePrice(a.price) - parsePrice(b.price);
+      case "price-high":
+        return parsePrice(b.price) - parsePrice(a.price);
+      default:
+        return 0; // Recommended order (original order)
+    }
+  });
+
+  function parsePrice(priceStr: string): number {
+    const numericValue = parseFloat(priceStr.replace(/[^0-9.]/g, ''));
+    return isNaN(numericValue) ? 0 : numericValue;
+  }
 
   const loadMoreHostels = () => setVisibleHostels(prev => prev + 6);
 
   // Reset visible hostels when filter changes
   useEffect(() => {
     setVisibleHostels(6);
-  }, [activeArea]);
-useEffect(() => {
-  console.log("Active Area:", activeArea);
-  console.log("All Areas:", allAreas);
-  console.log("Filtered Hostels:", filteredHostels);
-}, [activeArea, filteredHostels]);
+  }, [activeArea, sortOption]);
+
   // Function to check if no hostels are available in the selected area
   const noHostelsAvailable = () => {
     if (activeArea) {
@@ -100,7 +140,6 @@ useEffect(() => {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center space-y-6">
-        {/* Enhanced Loading Animation */}
         <div className="relative w-20 h-20">
           <div className="absolute inset-0 rounded-full border-4 border-slate-200"></div>
           <div className="absolute inset-0 rounded-full border-4 border-t-amber-500 border-r-amber-500 animate-spin"></div>
@@ -109,7 +148,6 @@ useEffect(() => {
           </div>
         </div>
         
-        {/* Text with fade animation */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -120,7 +158,6 @@ useEffect(() => {
           <p className="text-slate-500">Preparing your premium experience</p>
         </motion.div>
         
-        {/* Optional progress bar */}
         <div className="w-64 bg-slate-200 rounded-full h-1.5 mt-4 overflow-hidden">
           <motion.div 
             className="bg-gradient-to-r from-amber-400 to-amber-600 h-full rounded-full"
@@ -135,14 +172,14 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-slate-50 mt-[70px]">
-<motion.section 
+      {/* Enhanced Hero Section */}
+      <motion.section 
         initial="hidden" 
         whileInView="visible" 
         variants={fadeIn} 
         viewport={{ once: true, amount: 0.5 }} 
         className="relative py-32 bg-gradient-to-br from-slate-900 to-slate-800 text-white overflow-hidden"
       >
-        {/* Background elements */}
         <div className="absolute inset-0 bg-[url('https://uploads-ssl.webflow.com/5e80894f63c557e083ed96b4/5e831d9d086b358d0f7b9743_texture-noise.png')] opacity-5 z-0" />
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/40 to-transparent z-0" />
         
@@ -216,7 +253,7 @@ useEffect(() => {
 
         {/* Filter Buttons */}
         <motion.div 
-        id="alllocations"
+          id="alllocations"
           className="mb-16"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -247,23 +284,26 @@ useEffect(() => {
                     : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300"
                 }`}
               >
-               {area.trim()}
+                {area.trim()}
               </button>
             ))}
           </div>
 
-          {/* Results Count */}
+          {/* Results Count and Sort */}
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 px-2">
             <p className="text-slate-600 text-sm">
-              Showing <span className="font-medium">{Math.min(visibleHostels, filteredHostels.length)}</span> of{" "}
-              <span className="font-medium">{filteredHostels.length}</span> properties
+              Showing <span className="font-medium">{Math.min(visibleHostels, sortedHostels.length)}</span> of{" "}
+              <span className="font-medium">{sortedHostels.length}</span> properties
             </p>
             <div className="relative w-full md:w-auto">
-              <select className="appearance-none bg-white border border-slate-200 rounded-lg px-4 py-3 pr-10 text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent text-sm w-full md:w-64">
-                <option>Sort by: Recommended</option>
-                <option>Price: Low to High</option>
-                <option>Price: High to Low</option>
-                <option>Rating: Highest First</option>
+              <select 
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value)}
+                className="appearance-none bg-white border border-slate-200 rounded-lg px-4 py-3 pr-10 text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm w-full md:w-64"
+              >
+                <option value="recommended">Sort by: Recommended</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-700">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -282,19 +322,22 @@ useEffect(() => {
           animate="visible"
         >
           {noHostelsAvailable() ? (
-            <div className="col-span-full text-center py-16">
+            <motion.div 
+              className="col-span-full text-center py-16"
+              variants={fadeIn}
+            >
               <h3 className="text-xl font-medium text-slate-700 mb-4">
                 No hostels available in {activeArea} area
               </h3>
               <button
                 onClick={() => setActiveArea(null)}
-                className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg"
+                className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors duration-300"
               >
                 View All Hostels
               </button>
-            </div>
+            </motion.div>
           ) : (
-            filteredHostels.slice(0, visibleHostels).map((hostel) => (
+            sortedHostels.slice(0, visibleHostels).map((hostel) => (
               <motion.div
                 key={hostel.id}
                 className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 group relative"
@@ -311,6 +354,14 @@ useEffect(() => {
                   <div className="absolute top-4 left-4 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                     Premium
                   </div>
+                  {hostel.video && (
+                    <div className="absolute top-4 right-4 bg-slate-900/70 text-white p-2 rounded-full">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Hostel Details */}
@@ -333,7 +384,7 @@ useEffect(() => {
                     {hostel.location}
                   </p>
                   
-                  <p className="text-slate-500 text-sm mb-5">{hostel.shortDescription}</p>
+                  <p className="text-slate-500 text-sm mb-5 line-clamp-2">{hostel.shortDescription}</p>
 
                   {/* Facilities */}
                   <div className="mb-6">
@@ -346,6 +397,11 @@ useEffect(() => {
                           {facility}
                         </span>
                       ))}
+                      {hostel.facilities.length > 4 && (
+                        <span className="text-xs bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full">
+                          +{hostel.facilities.length - 4} more
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -370,34 +426,49 @@ useEffect(() => {
           )}
         </motion.section>
 
-        {!noHostelsAvailable() && visibleHostels < filteredHostels.length && (
-          <div className="flex justify-center mt-16">
+        {!noHostelsAvailable() && visibleHostels < sortedHostels.length && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="flex justify-center mt-16"
+          >
             <button
               onClick={loadMoreHostels}
-              className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-medium"
+              className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors duration-300"
             >
               Show More Properties
             </button>
-          </div>
+          </motion.div>
         )}
       </div>
 
-      {/* CTA Section */}
-      <section className="bg-slate-900 text-white py-20 px-6">
+      {/* Enhanced CTA Section */}
+      <motion.section 
+        initial="hidden"
+        whileInView="visible"
+        variants={fadeIn}
+        viewport={{ once: true }}
+        className="bg-gradient-to-br from-amber-500 to-amber-600 text-white py-20 px-6"
+      >
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-light mb-6 font-serif">Can't Find What You're Looking For?</h2>
-          <p className="text-slate-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-amber-100 mb-8 max-w-2xl mx-auto leading-relaxed">
             Our concierge service can help you find the perfect accommodation tailored 
             to your specific needs and preferences.
           </p>
-          <button className="px-8 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-medium rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl flex items-center mx-auto">
+          <Link 
+            href="/contact"
+            className="px-8 py-3.5 bg-white hover:bg-slate-100 text-amber-600 font-medium rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl flex items-center mx-auto w-fit"
+          >
             <span>Contact Our Concierge</span>
             <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-          </button>
+          </Link>
         </div>
-      </section>
+      </motion.section>
     </div>
   );
 };

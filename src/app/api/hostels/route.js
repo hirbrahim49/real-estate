@@ -1,4 +1,4 @@
-import { fetchHostels } from '@/app/handlers/googlesheetshandler';
+import { fetchHostels } from "../../../../handlers/googlesheetshandler";
 
 export async function GET() {
   try {
