@@ -2,8 +2,7 @@
 import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaClock, FaWhatsapp, FaInstagram } from "react-icons/fa";
-import { FaFacebook, FaTwitter, FaLinkedin, FaXTwitter } from "react-icons/fa6";
-import Homefooter from "../../app/Components/HomePage/Homefooter";
+import { FaFacebook, FaLinkedin, FaXTwitter } from "react-icons/fa6";
 import Link from "next/link";
 import { useEffect } from "react";
 import { FiSend } from "react-icons/fi";
@@ -44,12 +43,12 @@ const Page = () => {
     setIsSending(true);
 
     const formData = new FormData(e.currentTarget);
-    const data = {
-      name: formData.get("name") as string,
-      email: formData.get("email") as string,
-      phone: formData.get("phone") as string,
-      message: formData.get("message") as string,
-    };
+    // const data = {
+    //   name: formData.get("name") as string,
+    //   email: formData.get("email") as string,
+    //   phone: formData.get("phone") as string,
+    //   message: formData.get("message") as string,
+    // };
 
     try {
       // Simulate API call
@@ -66,7 +65,7 @@ const Page = () => {
       alert("Failed to send message. Please try again.");
       setIsSending(false);
     }
-  };
+  }
 
   const [loading, setLoading] = useState(true);
   
@@ -376,7 +375,7 @@ const Page = () => {
                     animate={{ opacity: 1, y: 0 }}
                     className="mt-4 text-center text-green-600 text-sm"
                   >
-                    We've received your message and will respond shortly.
+                    We&apos;ve received your message and will respond shortly.
                   </motion.div>
                 )}
               </div>

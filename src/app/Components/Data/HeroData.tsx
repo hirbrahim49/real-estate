@@ -22,14 +22,6 @@ interface DataSection2 {
   location:string;
 }
 
-interface DataSection3 {
-  id: number;
-  image: StaticImageData;
-  title: string; 
-  subtitle: string;
-  location:string;
-}
-
 
 export const HeroDataBase: DataItem[] = [
   {

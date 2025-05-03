@@ -68,7 +68,7 @@ const PremiumProperties = () => {
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
         >
-          {hotProperties.map((property, index) => (
+          {hotProperties.map((property) => (
             <motion.div
               key={property.id}
               variants={fadeIn}

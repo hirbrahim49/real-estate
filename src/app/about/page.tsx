@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { MdVerified, MdLocationOn, MdPhone, MdEmail } from "react-icons/md";
+import { MdVerified, MdLocationOn, MdPhone } from "react-icons/md";
 import { FaStar, FaRegStar, FaStarHalfAlt } from "react-icons/fa";
 import { FiArrowRight } from "react-icons/fi";
 
@@ -331,7 +331,7 @@ const Page = () => {
               name: "Ibrahim", 
               role: "Founder & Developer", 
               image: "/Image/Ibrahim.jpg",
-              bio: "Visionary behind HostelHub's innovative platform",
+              bio: "Visionary behind HostelHub&apos;s innovative platform",
               social: {
                 twitter: "#",
                 linkedin: "#"
@@ -340,7 +340,7 @@ const Page = () => {
             { 
               name: "Banji", 
               role: "Marketing Lead", 
-              image: "/Image/Jane.jpg",
+              image: "/Image/logo.png",
               bio: "Connecting students with the perfect accommodations",
               social: {
                 twitter: "#",
@@ -449,7 +449,7 @@ const Page = () => {
                   <div className="flex mb-4">
                     {renderStars(testimony.rating)}
                   </div>
-                  <p className="italic text-slate-700 mb-6">"{testimony.review}"</p>
+                  <p className="italic text-slate-700 mb-6">&quot;{testimony.review}&quot;</p>
                   <div>
                     <h3 className="text-lg font-semibold text-slate-800">{testimony.name}</h3>
                     <p className="text-slate-500 text-sm">{testimony.year}</p>

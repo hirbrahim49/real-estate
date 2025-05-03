@@ -1,7 +1,7 @@
 // components/DirectVideoUpload.tsx
 'use client';
 import { useState, useRef, ChangeEvent } from 'react';
-import { Trash2, UploadCloud, Video } from 'lucide-react';
+import { Trash2,Video } from 'lucide-react';
 import { uploadToCloudinary } from '../../../utils/cloudinaryUpload';
 
 interface DirectVideoUploadProps {

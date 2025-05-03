@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import Image from "next/image";
+
 
 interface Hostel {
   id: string;
@@ -32,17 +32,17 @@ const Page = () => {
     },
   };
 
-  const scaleUp = {
-    hidden: { opacity: 0, scale: 0.95 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut"
-      }
-    }
-  };
+  // const scaleUp = {
+  //   hidden: { opacity: 0, scale: 0.95 },
+  //   visible: {
+  //     opacity: 1,
+  //     scale: 1,
+  //     transition: {
+  //       duration: 0.6,
+  //       ease: "easeOut"
+  //     }
+  //   }
+  // };
 
   const staggerContainer = {
     hidden: { opacity: 0 },
@@ -453,7 +453,7 @@ const Page = () => {
         className="bg-gradient-to-br from-amber-500 to-amber-600 text-white py-20 px-6"
       >
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-light mb-6 font-serif">Can't Find What You're Looking For?</h2>
+          <h2 className="text-3xl font-light mb-6 font-serif">Can&apos;t Find What You&apos;re Looking For?</h2>
           <p className="text-amber-100 mb-8 max-w-2xl mx-auto leading-relaxed">
             Our concierge service can help you find the perfect accommodation tailored 
             to your specific needs and preferences.

@@ -31,7 +31,7 @@ export default function DirectImageUpload({
     }
 
     const file = e.target.files[0];
-    
+
     // Validate file
     if (file.size > 5 * 1024 * 1024) {
       setError('File too large (max 5MB)');
@@ -75,21 +75,19 @@ export default function DirectImageUpload({
           uploading ? 'bg-gray-100 cursor-wait' : 'cursor-pointer hover:border-blue-500'
         } transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
       >
-        <UploadCloud className={`mx-auto h-12 w-12 ${
-          uploading ? 'text-blue-500 animate-pulse' : 'text-gray-400'
-        }`} />
+        <UploadCloud
+          className={`mx-auto h-12 w-12 ${
+            uploading ? 'text-blue-500 animate-pulse' : 'text-gray-400'
+          }`}
+        />
         <p className="mt-2 text-sm text-gray-600">
           {uploading ? `Uploading... ${progress}%` : 'Click to upload images'}
         </p>
-        <p className="text-xs text-gray-500 mt-1">
-          JPG, PNG, WEBP (Max 5MB)
-        </p>
+        <p className="text-xs text-gray-500 mt-1">JPG, PNG, WEBP (Max 5MB)</p>
       </button>
 
       {error && (
-        <div className="p-2 bg-red-100 text-red-700 rounded text-sm">
-          {error}
-        </div>
+        <div className="p-2 bg-red-100 text-red-700 rounded text-sm">{error}</div>
       )}
 
       {uploading && (
@@ -104,12 +102,14 @@ export default function DirectImageUpload({
       <div className="grid grid-cols-3 gap-4">
         {existingImages.map((url) => (
           <div key={url} className="relative group">
-// Replace your img element with:
-<ImageWithFallback
-  src={url}
-  alt="Upload preview"
-  className="h-32 w-full rounded-lg"
-/>
+            {/*
+              Replace your img element with:
+            */}
+            <ImageWithFallback
+              src={url}
+              alt="Upload preview"
+              className="h-32 w-full rounded-lg"
+            />
             <button
               type="button"
               onClick={() => onRemove(url)}

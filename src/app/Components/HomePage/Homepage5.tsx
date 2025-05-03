@@ -176,7 +176,7 @@ const AboutAndTestimonials = () => {
               >
                 <FaQuoteLeft className="text-amber-500/30 text-4xl mb-4" />
                 <p className="text-slate-600 italic mb-6 flex-grow">
-                  "{testimonial.quote}"
+                  &quot;{testimonial.quote}&quot;
                 </p>
                 <div className="flex items-center">
                   <div className="w-12 h-12 rounded-full bg-slate-100 overflow-hidden mr-4">

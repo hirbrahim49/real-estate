@@ -6,7 +6,7 @@ export default function ImageWithFallback({
   src,
   alt,
   className,
-  fallbackSrc = '/Image/placeholder-image.jpg'
+  // fallbackSrc = '/Image/placeholder-image.jpg'
 }: {
   src: string;
   alt: string;

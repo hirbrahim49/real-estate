@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import DirectImageUpload from '../Components/DirectImageUpload';
 import DirectVideoUpload from '../Components/DirectVideoUpload';
-import { Trash2 } from 'lucide-react';
+import { useEffect } from 'react';
 
 const facilityOptions = [
   '24/7 Electricity',
@@ -112,6 +112,14 @@ export default function AddHostelPage() {
       setIsSubmitting(false);
     }
   };
+    
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 1500);
+  
+      return () => clearTimeout(timer);
+    }, []);
 
   if (loading) {
     return (

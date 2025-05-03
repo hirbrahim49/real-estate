@@ -1,8 +1,8 @@
 "use client";
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MdHomeWork, MdVerifiedUser } from "react-icons/md";
-import { FaPhoneAlt, FaHandshake } from "react-icons/fa";
+import { MdHomeWork } from "react-icons/md";
+import { FaPhoneAlt } from "react-icons/fa";
 import { RiSecurePaymentLine } from "react-icons/ri";
 
 const HowItWorks = () => {

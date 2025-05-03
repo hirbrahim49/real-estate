@@ -44,7 +44,7 @@ const TermsOfService = () => {
             <section>
               <h2 className="text-2xl font-serif font-light text-slate-800 mb-4">1. Acceptance of Terms</h2>
               <p className="text-slate-600">
-                By accessing or using EstateHub's services, you agree to be bound by these Terms. If you disagree, please discontinue use immediately.
+                By accessing or using EstateHub&apos;s services, you agree to be bound by these Terms. If you disagree, please discontinue use immediately.
               </p>
             </section>
 
@@ -82,7 +82,7 @@ const TermsOfService = () => {
             <section>
               <h2 className="text-2xl font-serif font-light text-slate-800 mb-4">6. Changes to Terms</h2>
               <p className="text-slate-600">
-                We may modify these Terms at any time. Continued use after changes constitutes acceptance. We'll notify users of significant changes via email or platform notifications.
+                We may modify these Terms at any time. Continued use after changes constitutes acceptance. We&apos;ll notify users of significant changes via email or platform notifications.
               </p>
             </section>
 

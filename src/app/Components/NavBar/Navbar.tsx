@@ -4,6 +4,11 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { FaSearch, FaWhatsapp, FaBars, FaTimes, FaChevronDown, FaPlus } from "react-icons/fa";
 
+interface AreaData {
+  data: string[];
+  success: boolean;
+}
+
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filteredAreas, setFilteredAreas] = useState<string[]>([]);
@@ -39,17 +44,17 @@ const Navbar = () => {
       try {
         setIsLoadingAreas(true);
         const response = await fetch('http://localhost:3001/api/areas');
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const data = await response.json();
+        const data: AreaData = await response.json();
         
         if (data.success && Array.isArray(data.data)) {
           // Ensure all areas are strings and not empty
           const validAreas = data.data
-            .map((area: any) => String(area || '').trim())
+            .map((area: string) => String(area || '').trim())
             .filter((area: string) => area.length > 0);
           
           setAllAreas(validAreas);
@@ -68,7 +73,7 @@ const Navbar = () => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value.trim();
     setSearchQuery(query);
-    
+
     if (query.length > 0 && allAreas.length > 0) {
       const filtered = allAreas.filter((area: string) => 
         area.toLowerCase().includes(query.toLowerCase())
@@ -84,7 +89,6 @@ const Navbar = () => {
     setFilteredAreas([]);
     window.location.href = `/explore?area=${encodeURIComponent(area)}`;
   };
-
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-white shadow-md z-50 font-sans">
@@ -112,7 +116,6 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* Rest of your navbar code remains the same */}
         {/* Navigation Links (Hidden on md and smaller screens) */}
         <ul className="hidden lg:flex space-x-8 font-medium text-gray-700 text-lg">
           <motion.li whileHover={{ y: -2 }} className="hover:text-amber-600 transition">
@@ -234,39 +237,38 @@ const Navbar = () => {
             type="text"
             placeholder={isLoadingAreas ? "Loading areas..." : "Search areas..."}
             className="w-full border border-white-300 rounded-full px-5 py-3 pl-12 focus:outline-none focus:ring-2 focus:ring-amber-500 placeholder-white-400"
-                value={searchQuery}
-                onChange={handleSearch}
-                onFocus={() => setIsSearchFocused(true)}
-                onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                disabled={isLoadingAreas}
+            value={searchQuery}
+            onChange={handleSearch}
+            onFocus={() => setIsSearchFocused(true)}
+            onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+            disabled={isLoadingAreas}
           />
-          {/* <FaSearch className="absolute left-4 top-4 text-amber-500" /> */}
 
           {/* Mobile Search Results */}
           {(filteredAreas.length > 0 && isSearchFocused) && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-xl border border-gray-300 overflow-hidden"
-              >
-                {filteredAreas.map((area, index) => (
-                  <div
-                    key={index}
-                    className="px-4 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0 transition-colors"
-                    onClick={() => handleAreaSelect(area)}
-                    onMouseDown={(e) => e.preventDefault()}
-                  >
-                    <div className="flex items-center">
-                      <svg className="w-4 h-4 mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <span className="text-slate-700">{area}</span>
-                    </div>
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-xl border border-gray-300 overflow-hidden"
+            >
+              {filteredAreas.map((area, index) => (
+                <div
+                  key={index}
+                  className="px-4 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0 transition-colors"
+                  onClick={() => handleAreaSelect(area)}
+                  onMouseDown={(e) => e.preventDefault()}
+                >
+                  <div className="flex items-center">
+                    <svg className="w-4 h-4 mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span className="text-slate-700">{area}</span>
                   </div>
-                ))}
-              </motion.div>
-            )}
+                </div>
+              ))}
+            </motion.div>
+          )}
         </div>
 
         {/* Navigation Links */}
@@ -275,7 +277,6 @@ const Navbar = () => {
             { name: "Home", path: "/" },
             { name: "Explore", path: "/explore" },
             { name: "About", path: "/about" },
-            // Add List Hostel to mobile menu
             { 
               name: "Post Hostel", 
               path: "/addHostels",
