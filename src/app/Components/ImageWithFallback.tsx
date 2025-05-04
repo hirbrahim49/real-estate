@@ -1,34 +1,39 @@
-// components/ImageWithFallback.tsx
 'use client';
+import Image from 'next/image';
 import { useState } from 'react';
+
+interface ImageWithFallbackProps {
+  src: string;
+  alt: string;
+  className?: string;
+  width?: number;
+  height?: number;
+  fallbackSrc?: string;
+}
 
 export default function ImageWithFallback({
   src,
   alt,
-  className,
-  // fallbackSrc = '/Image/placeholder-image.jpg'
-}: {
-  src: string;
-  alt: string;
-  className?: string;
-  fallbackSrc?: string;
-}) {
+  className = '',
+  width = 500,
+  height = 300,
+  fallbackSrc = '/placeholder-image.jpg'
+}: ImageWithFallbackProps) {
   const [error, setError] = useState(false);
 
   return (
     <div className={`relative ${className}`}>
-      {error ? (
-        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-          <span className="text-gray-400 text-sm">Image not available</span>
-        </div>
-      ) : (
-        <img
-          src={src}
-          alt={alt}
-          className="w-full h-full object-cover"
-          onError={() => setError(true)}
-        />
-      )}
+      <Image
+        src={error ? fallbackSrc : src}
+        alt={alt}
+        width={width}
+        height={height}
+        className="object-cover w-full h-full"
+        onError={() => {
+          console.warn(`Image load failed: ${src}`);
+          setError(true);
+        }}
+      />
     </div>
   );
 }

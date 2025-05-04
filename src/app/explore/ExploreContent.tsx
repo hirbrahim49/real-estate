@@ -69,12 +69,19 @@ const Page = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
+        console.log("Fetching hostels data...");
         const response = await fetch('/api/hostels');
-        if (!response.ok) throw new Error('Failed to fetch');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
-        setHostelsData(data.data || []);
+        console.log(`Received ${data.length} hostels from API`);
+        setHostelsData(data);
       } catch (error) {
         console.error("Fetch error:", error);
+        setHostelsData([]); // Ensure we set empty array on error
       } finally {
         setLoading(false);
       }
@@ -82,7 +89,6 @@ const Page = () => {
     
     fetchData();
   }, []);
-
   // Handle area from URL query parameter
   useEffect(() => {
     if (searchParams) {

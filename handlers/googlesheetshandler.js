@@ -1,23 +1,21 @@
 const { google } = require("googleapis");
-require("dotenv").config({ path: '.env.local' }); // Changed to load from .env.local
+require("dotenv").config({ path: '.env.local' });
 
 const sheets = google.sheets("v4");
 
 async function fetchHostels() {
-  // Add this to your auth initialization
-const auth = new google.auth.JWT(
-  process.env.GOOGLE_CLIENT_EMAIL,
-  null,
-  process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-  ['https://www.googleapis.com/auth/spreadsheets']
-);
-
-// Add error handling for auth
-await auth.authorize().catch(err => {
-  console.error('Authentication error:', err);
-  throw new Error('Failed to authenticate with Google Sheets');
-});
   try {
+    const auth = new google.auth.JWT({
+      email: process.env.GOOGLE_CLIENT_EMAIL,
+      key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      scopes: ['https://www.googleapis.com/auth/spreadsheets']
+    });
+
+    // Test authentication
+    await auth.authorize();
+    
+    console.log("Successfully authenticated with Google Sheets API");
+
     const response = await sheets.spreadsheets.values.get({
       auth,
       spreadsheetId: process.env.GOOGLE_SPREADSHEET_ID,
@@ -25,15 +23,18 @@ await auth.authorize().catch(err => {
     });
 
     const rows = response.data.values;
-    if (!rows || rows.length < 2) return [];
+    if (!rows || rows.length < 2) {
+      console.log("No data found in Google Sheets");
+      return [];
+    }
 
     return rows.slice(1).map((row) => ({
       id: row[0] || '',
-      area: row[1] ? String(row[1]).trim() : '', // Ensure area is a string
+      area: row[1] ? String(row[1]).trim() : '',
       name: row[2] || '',
       location: row[3] || '',
       shortDescription: row[4] || '',
-      images: [row[5] || '', row[6] || '', row[7] || ''].filter(Boolean), // Filter out empty images
+      images: [row[5] || '', row[6] || '', row[7] || ''].filter(Boolean),
       video: row[8] || '',
       price: row[9] || '',
       facilities: row[10] ? row[10].split(',').map(f => f.trim()) : [],
@@ -41,8 +42,13 @@ await auth.authorize().catch(err => {
     }));
   
   } catch (error) {
-    console.error("Error fetching hostels:", error);
+    console.error("Error in fetchHostels:", {
+      message: error.message,
+      stack: error.stack,
+      response: error.response?.data
+    });
     return [];
   }
 }
+
 module.exports = { fetchHostels };
