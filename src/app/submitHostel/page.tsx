@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 import DirectImageUpload from '../Components/DirectImageUpload';
 import DirectVideoUpload from '../Components/DirectVideoUpload';
 import { useEffect } from 'react';
-
+import { FaTrash } from 'react-icons/fa';
+import Link from 'next/link';
 const facilityOptions = [
   '24/7 Electricity',
   'Water',
@@ -424,6 +425,13 @@ export default function AddHostelPage() {
                 </motion.button>
               </div>
             </form>
+            <Link 
+  href="/deletehostel"
+  className="mt-6 inline-flex items-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+>
+  <FaTrash className="mr-2" />
+  Delete a Hostel
+</Link>
           </div>
         </motion.div>
       </motion.div>
