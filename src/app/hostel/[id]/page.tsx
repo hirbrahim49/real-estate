@@ -78,28 +78,36 @@ const HostelDetailPage = () => {
     setAutoScroll(false);
   };
 
-  useEffect(() => {
-    const fetchHostel = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/api/hostels');
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch');
-        }
-        
-        const data = await response.json();
-        const foundHostel = data.data.find((h: Hostel) => h.id === id);
-        
-        setHostel(foundHostel || null);
-      } catch (error) {
-        console.error("Error fetching hostel:", error);
-      } finally {
-        setLoading(false);
+ // In your HostelDetailPage component, replace the useEffect with this:
+
+useEffect(() => {
+  const fetchHostel = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/hostels');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch hostels');
       }
-    };
-    
-    fetchHostel();
-  }, [id]);
+      
+      const data = await response.json();
+      const foundHostel = data.find((h: Hostel) => h.id === id);
+      
+      if (!foundHostel) {
+        throw new Error('Hostel not found');
+      }
+      
+      setHostel(foundHostel);
+    } catch (error) {
+      console.error("Error fetching hostel:", error);
+      setHostel(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  fetchHostel();
+}, [id]);
 
   const generateWhatsAppMessage = () => {
         if (!hostel) return "";
