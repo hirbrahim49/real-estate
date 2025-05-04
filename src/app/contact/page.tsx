@@ -42,7 +42,7 @@ const Page = () => {
     e.preventDefault();
     setIsSending(true);
 
-    const formData = new FormData(e.currentTarget);
+    // const formData = new FormData(e.currentTarget);
     // const data = {
     //   name: formData.get("name") as string,
     //   email: formData.get("email") as string,
@@ -375,7 +375,7 @@ const Page = () => {
                     animate={{ opacity: 1, y: 0 }}
                     className="mt-4 text-center text-green-600 text-sm"
                   >
-                    We&apos;ve received your message and will respond shortly.
+                    We&apos;yve received your message and will respond shortly.
                   </motion.div>
                 )}
               </div>

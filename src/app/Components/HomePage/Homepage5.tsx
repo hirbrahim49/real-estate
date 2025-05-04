@@ -83,7 +83,7 @@ const AboutAndTestimonials = () => {
               
               <div className="space-y-6">
                 <p className="text-lg text-slate-300 leading-relaxed">
-                  At HostelHub, we're transforming student accommodation with verified listings, premium media, and direct owner connections. Our platform eliminates the stress of finding quality housing.
+                  At HostelHub, we&apos;re transforming student accommodation with verified listings, premium media, and direct owner connections. Our platform eliminates the stress of finding quality housing.
                 </p>
                 <p className="text-lg text-slate-300 leading-relaxed">
                   We combine modern living with academic convenience, ensuring your transition to campus life is seamless and exceptional.
