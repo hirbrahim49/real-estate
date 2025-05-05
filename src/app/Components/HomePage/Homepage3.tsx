@@ -134,7 +134,7 @@ const PremiumProperties = () => {
                     <p className="text-xl font-bold text-slate-800">{property.price}</p>
                   </div>
                   <Link
-                    href={`/properties/${property.id}`}
+                    href="/explore"
                     className="px-5 py-2.5 bg-gradient-to-r from-slate-800 to-slate-700 hover:from-slate-700 hover:to-slate-600 text-white text-sm font-medium rounded-lg transition-all duration-300 flex items-center"
                   >
                     View Details
