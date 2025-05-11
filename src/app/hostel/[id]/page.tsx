@@ -110,31 +110,66 @@ const HostelDetailPage = () => {
     fetchHostel();
   }, [id]);
 
-  const generateWhatsAppMessage = () => {
-    if (!hostel) return "";
-    
-    return `Hello HostelHub Admin,\n\nI'm interested in booking this hostel:\n\n*🏠 Hostel Name:* ${hostel.name}\n*📍 Location:* ${hostel.location}\n*💰 Price:* ${hostel.price}\n\n*Key Features:*\n${hostel.facilities.slice(0, 5).map(f => `• ${f}`).join('\n')}\n\nCould you please provide more information about:\n- Room availability\n- Booking procedure\n- Payment options\n\nLooking forward to your response. Thank you!`;
-  };
+ // Updated WhatsApp message generation functions
+const generateWhatsAppMessage = () => {
+  if (!hostel) return "";
+  
+  // Ensure proper WhatsApp message formatting with line breaks
+  return `Hello HostelHub Admin,\n\nI'm interested in booking this hostel:\n\n` +
+         `*🏠 Hostel Name:* ${hostel.name}\n` +
+         `*📍 Location:* ${hostel.location}\n` +
+         `*💰 Price:* ${hostel.price}\n\n` +
+         `*Key Features:*\n${hostel.facilities.slice(0, 5).map(f => `• ${f}`).join('\n')}\n\n` +
+         `Could you please provide more information about:\n` +
+         `- Room availability\n` +
+         `- Booking procedure\n` +
+         `- Payment options\n\n` +
+         `Looking forward to your response. Thank you!`;
+};
 
-  const getWhatsAppNumber = () => {
-    if (!hostel?.contact) {
-      console.error("No contact information available");
-      return "";
+const getWhatsAppNumber = () => {
+  // Default admin number if hostel contact isn't available
+  const defaultNumber = "2349135843102"; // Replace with your admin number
+  
+  if (!hostel?.contact) {
+    console.warn("No contact number available, using default");
+    return defaultNumber;
+  }
+  
+  try {
+    // Clean the phone number
+    let phone = hostel.contact.trim();
+    
+    // Remove all non-digit characters
+    phone = phone.replace(/\D/g, '');
+    
+    // Handle Nigerian numbers specifically
+    if (phone.startsWith('0')) {
+      return '234' + phone.substring(1);
     }
     
-    try {
-      const phone = hostel.contact.replace(/\D/g, '');
-      return phone.startsWith('234') ? phone : 
-             phone.startsWith('0') ? `234${phone.substring(1)}` : 
-             `234${phone}`;
-    } catch (error) {
-      console.error("Error parsing WhatsApp number:", error);
-      return "";
+    // If already in international format without +
+    if (phone.startsWith('234') && phone.length === 13) {
+      return phone;
     }
-  };
+    
+    // If starts with +234
+    if (phone.startsWith('234')) {
+      return phone;
+    }
+    
+    // If nothing matches, use default
+    return defaultNumber;
+  } catch (error) {
+    console.error("Error parsing WhatsApp number:", error);
+    return defaultNumber;
+  }
+};
 
-  const whatsappLink = `https://wa.me/${getWhatsAppNumber()}?text=${encodeURIComponent(generateWhatsAppMessage())}`;
-
+// Updated WhatsApp link generation
+const whatsappLink = hostel?.contact 
+  ? `https://wa.me/${getWhatsAppNumber()}?text=${encodeURIComponent(generateWhatsAppMessage())}`
+  : null;
   // Facility icons mapping
   const facilityIcons: FacilityIcons = {
     'wifi': <FaWifi className="text-amber-500 text-lg md:text-xl" />,
@@ -365,21 +400,21 @@ const HostelDetailPage = () => {
                   </button>
                 )}
 
-                {!hostel.contact ? (
-                  <div className="p-2 md:p-3 bg-yellow-100 text-yellow-800 rounded-lg text-xs md:text-sm">
-                    WhatsApp contact not available
-                  </div>
-                ) : (
-                  <a
-                    href={whatsappLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full px-4 py-3 md:px-6 md:py-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-medium transition-all flex items-center justify-center shadow hover:shadow-lg text-sm md:text-base"
-                  >
-                    <FaWhatsapp className="text-lg md:text-xl mr-2 md:mr-3" />
-                    Contact via WhatsApp
-                  </a>
-                )}
+{whatsappLink ? (
+  <a
+    href={whatsappLink}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="w-full px-4 py-3 md:px-6 md:py-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-medium transition-all flex items-center justify-center shadow hover:shadow-lg text-sm md:text-base"
+  >
+    <FaWhatsapp className="text-lg md:text-xl mr-2 md:mr-3" />
+    Contact via WhatsApp
+  </a>
+) : (
+  <div className="p-3 bg-yellow-100 text-yellow-800 rounded-lg text-center text-sm">
+    Contact number not available
+  </div>
+)}
               </div>
 
               <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-slate-100">
