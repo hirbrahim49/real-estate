@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css"; 
@@ -30,7 +30,6 @@ interface FacilityIcons {
 
 const HostelDetailPage = () => {
   const { id } = useParams();
-  const router = useRouter();
   const [hostel, setHostel] = useState<Hostel | null>(null);
   const [activeTab, setActiveTab] = useState("description");
   const [showVideo, setShowVideo] = useState(false);
