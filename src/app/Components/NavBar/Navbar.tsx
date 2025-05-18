@@ -10,13 +10,25 @@ interface AreaData {
 }
 
 const Navbar = () => {
-  const [searchQuery, setSearchQuery] = useState<string>("");
+const [searchQuery, setSearchQuery] = useState<string>("");
   const [filteredAreas, setFilteredAreas] = useState<string[]>([]);
   const [allAreas, setAllAreas] = useState<string[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [isSearchFocused, setIsSearchFocused] = useState<boolean>(false);
   const [isLoadingAreas, setIsLoadingAreas] = useState<boolean>(true);
 
+   const getApiBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    // Client-side: Use relative path for production
+    return process.env.NODE_ENV === 'development'
+      ? 'http://localhost:3001'
+      : '/api';
+  }
+  // Server-side: Use full URL
+  return process.env.NODE_ENV === 'development'
+    ? 'http://localhost:3001'
+    : process.env.NEXT_PUBLIC_PROD_API_BASE_URL || 'https://hostelhub.shop';
+};
   // Animation variants for the HostelHub text
   const logoVariants = {
     hidden: { opacity: 0, y: -20 },
@@ -39,11 +51,14 @@ const Navbar = () => {
   };
 
   // Fetch areas from your API
-  useEffect(() => {
+ useEffect(() => {
     const fetchAreas = async () => {
       try {
         setIsLoadingAreas(true);
-        const response = await fetch('http://localhost:3001/api/areas');
+        const apiUrl = `${getApiBaseUrl()}/api/areas`;
+        console.log('Fetching areas from:', apiUrl); // Debugging
+        
+        const response = await fetch(apiUrl);
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -52,7 +67,6 @@ const Navbar = () => {
         const data: AreaData = await response.json();
         
         if (data.success && Array.isArray(data.data)) {
-          // Ensure all areas are strings and not empty
           const validAreas = data.data
             .map((area: string) => String(area || '').trim())
             .filter((area: string) => area.length > 0);

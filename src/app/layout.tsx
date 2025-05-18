@@ -15,11 +15,31 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "HostelHub",
-  description: "Easily find your ideal hostel with HostelHub – fast, reliable, and student-friendly.",
   icons: {
-    icon: "/Image/logo.png",
+    icon: [
+      // Primary production icon (absolute URL)
+      { 
+        url: "https://hostelhub.shop/Image/logo.png",
+        type: "image/png",
+        sizes: "32x32"
+      },
+      // Development/localhost fallback
+      { 
+        url: "/Image/logo.png", 
+        type: "image/png",
+        rel: "alternate icon",
+        sizes: "32x32"
+      },
+      // Apple touch icon
+      {
+        url: "/Image/logo.png",
+        type: "image/png",
+        rel: "apple-touch-icon",
+        sizes: "180x180"
+      }
+    ],
   },
+  metadataBase: new URL("https://hostelhub.shop"), // Critical for absolute URLs
 };
 
 export default function RootLayout({
@@ -29,9 +49,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      {/* Preload logo for better performance */}
+      <head>
+        <link 
+          rel="preload" 
+          href="/Image/logo.png" 
+          as="image" 
+          type="image/png"
+        />
+      </head>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <div><Navbar /></div>
         <div className="my-6">{children}</div>
         <section><Homefooter /></section>

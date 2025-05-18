@@ -227,8 +227,8 @@ const Page = () => {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { value: "500+", label: "Verified Hostels" },
-              { value: "10,000+", label: "Students Served" },
+              { value: "200+", label: "Verified Hostels" },
+              { value: "1000+", label: "Students Served" },
               { value: "98%", label: "Satisfaction Rate" },
               { value: "24/7", label: "Support Available" }
             ].map((stat, i) => (
@@ -329,8 +329,8 @@ const Page = () => {
           {[
             { 
               name: "Ibrahim", 
-              role: "Founder & Developer", 
-              image: "/Image/Ibrahim.jpg",
+              role: "Developer", 
+              image: "/Image/ibrahim.jpg",
               bio: "Visionary behind HostelHub&apos;s innovative platform",
               social: {
                 twitter: "#",
@@ -425,13 +425,13 @@ const Page = () => {
                   rating: 5
                 },
                 {
-                  name: "Jane Smith",
+                  name: "Olawuyi David",
                   review: "The direct contact feature allowed me to negotiate terms directly with the owner. Unmatched convenience!",
                   year: "2nd Year - OAU",
                   rating: 4.5
                 },
                 {
-                  name: "Alex Johnson",
+                  name: "Alex Joseph",
                   review: "As an international student, the virtual tours were invaluable. I secured my hostel before even arriving in Nigeria.",
                   year: "4th Year - OAU",
                   rating: 5

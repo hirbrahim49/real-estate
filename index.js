@@ -5,7 +5,16 @@ const { fetchHostels } = require("./handlers/googlesheetshandler");
 const app = express();
 
 // Enable CORS for all routes
-app.use(cors()); // Add this line
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',
+    'https://hostelhub-seven.vercel.app',
+    'https://hostelhub.shop',
+    'https://api.hostelhub.shop'
+  ],
+  credentials: true
+};
+app.use(cors(corsOptions));
 
 app.get("/api/hostels", async (req, res) => {
   try {

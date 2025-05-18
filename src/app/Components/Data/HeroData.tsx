@@ -91,7 +91,7 @@ export const hotProperties: HotProperty[] = [
     image: "/Image/property1.jpg",
     name: "Shared Room (4 People)",
     location: "Ife City Center",
-    price: "₦450,000 / year",
+    price: "₦250,000 / year",
     description: "Spacious apartment with modern kitchen, 24/7 electricity, and water supply.",
   },
   {
@@ -99,7 +99,7 @@ export const hotProperties: HotProperty[] = [
     image: "/Image/property2.jpeg",
     name: "Cozy Studio Room",
     location: "Mayfair, Ile-Ife",
-    price: "₦250,000 / year",
+    price: "₦150,000 / year",
     description: "Ideal for students, comes with WiFi, furnished bed, and study table.",
   },
   {
@@ -107,7 +107,7 @@ export const hotProperties: HotProperty[] = [
     image: "/Image/property3.jpeg",
     name: "Modern 3-Bedroom Duplex",
     location: "Parakin Estate",
-    price: "₦850,000 / year",
+    price: "₦400,000 / year",
     description: "Fully air-conditioned with parking space and CCTV security.",
   },
   {
@@ -123,7 +123,7 @@ export const hotProperties: HotProperty[] = [
     image: "/Image/property5.jpeg",
     name: "Executive Self-Contain",
     location: "Oduduwa Estate",
-    price: "₦320,000 / year",
+    price: "₦220,000 / year",
     description: "Well-finished, tiled floor, water heater, and kitchen space.",
   },
 ];
