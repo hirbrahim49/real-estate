@@ -100,7 +100,7 @@ const Navbar = () => {
     window.location.href = `/explore?area=${encodeURIComponent(area)}`;
   };
 
-// Animation variants
+  // Animation variants
   const mobileMenuVariants = {
     hidden: { 
       x: "100%",
@@ -152,7 +152,7 @@ const Navbar = () => {
           </motion.span>
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Navigation with Icons */}
         <ul className="hidden lg:flex space-x-1 font-medium">
           {navItems.map((item) => (
             <motion.li 
@@ -164,6 +164,7 @@ const Navbar = () => {
                 href={item.path} 
                 className={`flex items-center px-4 py-2 rounded-full transition-colors ${pathname === item.path ? 'text-amber-600 bg-amber-50' : 'text-gray-600 hover:text-gray-900'}`}
               >
+                <span className="mr-2">{item.icon}</span>
                 {item.name}
               </Link>
             </motion.li>
@@ -306,7 +307,7 @@ const Navbar = () => {
                 </div>
               </div>
 
-              {/* Navigation Links - Fixed Visibility */}
+              {/* Navigation Links with Icons */}
               <motion.ul className="space-y-3">
                 {navItems.map((item, index) => (
                   <motion.li

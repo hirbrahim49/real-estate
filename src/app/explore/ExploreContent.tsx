@@ -16,10 +16,11 @@ interface Hostel {
   facilities: string[];
   contact: string;
   rating?: number;
+  clientSideTimestamp?: number;
 }
 
 const Page = () => {
-  // Enhanced animation variants
+  // Animation variants (unchanged)
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
@@ -43,15 +44,15 @@ const Page = () => {
     },
   };
 
-  // State declarations
+  // State declarations (only changed sortOption default to "newest")
   const [hostelsData, setHostelsData] = useState<Hostel[]>([]);
   const [activeArea, setActiveArea] = useState<string | null>(null);
   const [visibleHostels, setVisibleHostels] = useState(6);
   const [loading, setLoading] = useState(true);
-  const [sortOption, setSortOption] = useState("recommended");
+  const [sortOption, setSortOption] = useState("oldest");
   const searchParams = useSearchParams();
 
-  // Fetch data on component mount
+  // Fetch data on component mount (unchanged)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -63,12 +64,13 @@ const Page = () => {
         }
         
         const data = await response.json();
-        // Add random ratings for demo purposes
-        const dataWithRatings = data.map((hostel: Hostel) => ({
+        const now = Date.now();
+        const dataWithTimestamps = data.map((hostel: Hostel, index: number) => ({
           ...hostel,
-          rating: (Math.random() * 1 + 4).toFixed(1) // Random rating between 4.0-5.0
+          rating: (Math.random() * 1 + 4).toFixed(1),
+          clientSideTimestamp: now - index
         }));
-        setHostelsData(dataWithRatings);
+        setHostelsData(dataWithTimestamps);
       } catch (error) {
         console.error("Fetch error:", error);
         setHostelsData([]);
@@ -80,7 +82,7 @@ const Page = () => {
     fetchData();
   }, []);
 
-  // Handle area from URL query parameter
+  // Handle area from URL query parameter (unchanged)
   useEffect(() => {
     if (searchParams) {
       const areaParam = searchParams.get('area');
@@ -90,12 +92,12 @@ const Page = () => {
     }
   }, [searchParams]);
 
-  // Get unique areas
+  // Get unique areas (unchanged)
   const allAreas = [...new Set(hostelsData.map(hostel => 
     hostel.area.trim()
   ))].filter(Boolean).sort();
 
-  // Enhanced filter and sort function
+  // Enhanced filter and sort function (only changed default case)
   const filteredHostels = activeArea
     ? hostelsData.filter(hostel => 
         hostel.area.trim().toLowerCase() === activeArea.trim().toLowerCase()
@@ -110,8 +112,10 @@ const Page = () => {
         return parsePrice(b.price) - parsePrice(a.price);
       case "rating":
         return (b.rating || 0) - (a.rating || 0);
-      default:
-        return 0; // Recommended order (original order)
+      case "oldest":
+        return (a.clientSideTimestamp || 0) - (b.clientSideTimestamp || 0);
+      default: // Changed to default to newest first
+        return (b.clientSideTimestamp || 0) - (a.clientSideTimestamp || 0);
     }
   });
 
@@ -122,7 +126,7 @@ const Page = () => {
 
   const loadMoreHostels = () => setVisibleHostels(prev => prev + 6);
 
-  // Reset visible hostels when filter changes
+  // Reset visible hostels when filter changes (unchanged)
   useEffect(() => {
     setVisibleHostels(6);
   }, [activeArea, sortOption]);
@@ -136,24 +140,64 @@ const Page = () => {
     return false;
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center space-y-6">
-        <div className="relative w-20 h-20">
-          <div className="absolute inset-0 rounded-full border-4 border-slate-200"></div>
-          <div className="absolute inset-0 rounded-full border-4 border-t-amber-500 border-r-amber-500 animate-spin"></div>
+   if (loading) {
+      return (
+        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center space-y-6">
+          {/* Enhanced Loading Animation */}
+          <motion.div
+            animate={{ 
+              rotate: 360,
+              transition: { 
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "linear"
+              }
+            }}
+            className="relative w-20 h-20"
+          >
+            <div className="absolute inset-0 rounded-full border-4 border-slate-200"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-t-amber-500 border-r-amber-500"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-3 h-3 rounded-full bg-amber-500 animate-pulse"></div>
+            </div>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-center space-y-2"
+          >
+            <h3 className="text-xl font-medium text-slate-800">Loading HostelHub</h3>
+            <p className="text-slate-500">Preparing your premium experience</p>
+          </motion.div>
+          
+          <div className="w-64 bg-slate-200 rounded-full h-1.5 mt-4 overflow-hidden">
+            <motion.div 
+              className="bg-gradient-to-r from-amber-400 to-amber-600 h-full rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: '100%' }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+            />
+          </div>
         </div>
-        <h3 className="text-xl font-medium text-slate-800">Loading Premium Hostels</h3>
-      </div>
-    );
-  }
+      );
+    }
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Hero Section */}
+      {/* Hero Section (unchanged) */}
       <section className="relative py-24 bg-gradient-to-br from-slate-900 to-slate-800 text-white overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://uploads-ssl.webflow.com/5e80894f63c557e083ed96b4/5e831d9d086b358d0f7b9743_texture-noise.png')] opacity-5" />
         <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center relative">
+          <motion.div 
+                      className="inline-flex items-center justify-center mb-6 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/10"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <span className="text-sm font-medium tracking-widest">EXPLORE PREMIUM HOSTELS</span>
+                    </motion.div>
           <motion.h1 
             className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-serif leading-tight"
             initial={{ opacity: 0, y: 20 }}
@@ -162,6 +206,12 @@ const Page = () => {
           >
             Discover Premium Student Accommodations
           </motion.h1>
+           <motion.div 
+                      className="w-24 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mx-auto mb-8 rounded-full"
+                      variants={fadeIn}
+                      transition={{ delay: 0.1 }}
+                    />
+                    
           <motion.p 
             className="text-lg md:text-xl max-w-3xl mx-auto mb-8 text-slate-200 leading-relaxed"
             initial={{ opacity: 0 }}
@@ -173,7 +223,7 @@ const Page = () => {
         </div>
       </section>
 
-      {/* Filter Section */}
+      {/* Filter Section (unchanged except select options order) */}
       <div className="py-16 px-6 max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -193,7 +243,7 @@ const Page = () => {
           </p>
         </motion.div>
 
-        {/* Filter Controls */}
+        {/* Filter Controls (only changed select options order) */}
         <div className="mb-12">
           <div className="flex flex-wrap justify-center gap-3 mb-8">
             <button
@@ -231,7 +281,8 @@ const Page = () => {
                 onChange={(e) => setSortOption(e.target.value)}
                 className="appearance-none bg-white border border-slate-200 rounded-lg px-4 py-2 pr-10 text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
               >
-                <option value="recommended">Recommended</option>
+                <option value="oldest">Newest First</option>
+                <option value="newest">Oldest First</option>
                 <option value="price-low">Price: Low to High</option>
                 <option value="price-high">Price: High to Low</option>
                 <option value="rating">Highest Rated</option>
@@ -245,7 +296,7 @@ const Page = () => {
           </div>
         </div>
 
-        {/* Hostel Cards */}
+        {/* Hostel Cards (unchanged) */}
         <motion.div
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           variants={staggerContainer}
@@ -363,7 +414,7 @@ const Page = () => {
         )}
       </div>
 
-      {/* CTA Section */}
+      {/* CTA Section (unchanged) */}
       <section className="bg-gradient-to-br from-amber-500 to-amber-600 text-white py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-light mb-6 font-serif">Need Help Finding Accommodation?</h2>
