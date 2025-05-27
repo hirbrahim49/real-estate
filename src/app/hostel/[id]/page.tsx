@@ -59,7 +59,10 @@ const HostelDetailPage = () => {
 
   const generateWhatsAppMessage = () => {
     if (!hostel) return "";
-    return `Hello HostelHub,\n\nI'm interested in:\n*🏠 ${hostel.name}*\n📍 ${hostel.location}\n💰 ${hostel.price}\n\nPlease share:\n- Availability\n- Booking process\n- Payment options\n\nThank you!`;
+    
+    const mainImage = validImages.length > 0 ? validImages[0] : "https://res.cloudinary.com/your-cloud-name/image/upload/v1234567/hostelhub/default-hostel.jpg";
+    
+    return `Hello HostelHub Admin,\n\nI'm interested in booking this hostel:\n\n*🏠 ${hostel.name}*\n📍 *Location:* ${hostel.location}\n💰 *Price:* ${hostel.price}\n⭐ *Rating:* ${hostel.rating || "4.5"}/5\n\n*Key Features:*\n${hostel.facilities.slice(0, 5).map(f => `• ${f}`).join('\n')}\n\n*Hostel Image:* ${mainImage}\n\nPlease provide:\n1. Room availability\n2. Booking procedure\n3. Payment options\n4.\nLooking forward to your response. Thank you!`;
   };
 
   const getWhatsAppNumber = () => {
