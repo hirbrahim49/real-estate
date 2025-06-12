@@ -414,21 +414,31 @@ const Page = () => {
         )}
       </div>
 
-      {/* CTA Section (unchanged) */}
-      <section className="bg-gradient-to-br from-amber-500 to-amber-600 text-white py-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-light mb-6 font-serif">Need Help Finding Accommodation?</h2>
-          <p className="text-amber-100 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Our team can help you find the perfect place tailored to your needs.
-          </p>
-          <Link 
-            href="/contact"
-            className="px-8 py-3 bg-white hover:bg-slate-100 text-amber-600 font-medium rounded-lg transition-all shadow-lg hover:shadow-xl flex items-center mx-auto w-fit"
-          >
-            Contact Our Team
-          </Link>
-        </div>
-      </section>
+<section className="bg-gradient-to-br from-amber-500 to-amber-600 text-white py-20 px-6">
+  <div className="max-w-4xl mx-auto text-center">
+    <h2 className="text-3xl sm:text-4xl font-light mb-6 font-serif">Need Help Finding Accommodation?</h2>
+    <p className="text-amber-100 mb-10 max-w-2xl mx-auto leading-relaxed text-base sm:text-lg">
+      Our team can help you find the perfect place tailored to your needs.
+    </p>
+    
+    <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+      <Link 
+        href="/contact"
+        className="px-8 py-3 bg-white text-amber-600 font-semibold rounded-xl transition-all duration-300 shadow-lg hover:bg-slate-100 hover:scale-105 hover:shadow-xl w-full sm:w-auto text-center"
+      >
+        Contact Our Team
+      </Link>
+
+      <Link 
+        href="https://chat.whatsapp.com/H5PxQGnXBZk2s7jzooEGvO"
+        className="px-8 py-3 bg-white text-amber-600 font-semibold rounded-xl transition-all duration-300 shadow-lg hover:bg-slate-100 hover:scale-105 hover:shadow-xl w-full sm:w-auto text-center"
+      >
+        Join Our WhatsApp
+      </Link>
+    </div>
+  </div>
+</section>
+
     </div>
   );
 };

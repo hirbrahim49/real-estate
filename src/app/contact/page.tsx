@@ -594,7 +594,7 @@ const Page = () => {
                 color: "bg-green-50 hover:bg-green-500",
                 textColor: "text-green-600 group-hover:text-white",
                 label: "WhatsApp",
-                url: "https://wa.me/2349044174371"
+                url: "https://chat.whatsapp.com/H5PxQGnXBZk2s7jzooEGvO"
               },
               { 
                 icon: <FaInstagram className="text-3xl" />,
