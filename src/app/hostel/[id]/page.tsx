@@ -1,13 +1,13 @@
 'use client';
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
-import { FaWhatsapp, FaMapMarkerAlt, FaStar, FaChevronLeft, FaBed, FaWifi, FaParking, FaSwimmingPool, FaUtensils } from "react-icons/fa";
-import { FiCheckCircle } from "react-icons/fi";
-import { IoIosArrowForward } from "react-icons/io";
+import { FaWhatsapp, FaMapMarkerAlt, FaStar, FaChevronLeft, FaBed, FaWifi, FaParking, FaSwimmingPool, FaUtensils, FaExpand } from "react-icons/fa";
+import { FiCheckCircle, FiX } from "react-icons/fi";
+import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { MdSecurity, MdLocalLaundryService, MdFitnessCenter } from "react-icons/md";
 import Link from "next/link";
 
@@ -36,6 +36,7 @@ const HostelDetailPage = () => {
   const [showVideo, setShowVideo] = useState(false);
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const sliderRef = useRef<Slider>(null);
 
   // Calculate valid images
@@ -160,42 +161,51 @@ const HostelDetailPage = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 pb-12 md:px-6">
-        {/* Image Gallery */}
+        {/* Image Gallery - Redesigned for better mobile experience */}
         <div className="relative rounded-xl overflow-hidden shadow-lg mb-6 mt-4 md:mb-8 md:mt-6">
           {validImages.length > 0 ? (
             <>
               <Slider ref={sliderRef} {...sliderSettings}>
                 {validImages.map((image: string, index: number) => (
-                  <div key={index} className="relative aspect-video">
+                  <div key={index} className="relative aspect-[4/3] sm:aspect-video">
                     <img
                       src={image}
                       alt={`${hostel.name} - ${index + 1}`}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover cursor-pointer"
+                      onClick={() => setFullscreenImage(image)}
                     />
                     <div className="absolute bottom-4 right-4 bg-black/50 text-white text-sm px-2 py-1 rounded-full">
                       {index + 1}/{validImages.length}
                     </div>
+                    <button 
+                      onClick={() => setFullscreenImage(image)}
+                      className="absolute bottom-4 left-4 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition"
+                    >
+                      <FaExpand className="text-sm" />
+                    </button>
                   </div>
                 ))}
               </Slider>
               
-              <div className="absolute bottom-4 left-4 flex items-center space-x-2">
-                <button 
-                  onClick={goToPrev}
-                  className="p-2 bg-white/80 rounded-full hover:bg-white transition"
-                >
-                  <IoIosArrowForward className="text-amber-600 rotate-180" />
-                </button>
-                <button 
-                  onClick={goToNext}
-                  className="p-2 bg-white/80 rounded-full hover:bg-white transition"
-                >
-                  <IoIosArrowForward className="text-amber-600" />
-                </button>
-              </div>
+              {validImages.length > 1 && (
+                <>
+                  <button 
+                    onClick={goToPrev}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full hover:bg-white transition shadow-md z-10"
+                  >
+                    <IoIosArrowBack className="text-amber-600" />
+                  </button>
+                  <button 
+                    onClick={goToNext}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full hover:bg-white transition shadow-md z-10"
+                  >
+                    <IoIosArrowForward className="text-amber-600" />
+                  </button>
+                </>
+              )}
             </>
           ) : (
-            <div className="aspect-video bg-slate-100 flex items-center justify-center">
+            <div className="aspect-[4/3] sm:aspect-video bg-slate-100 flex items-center justify-center">
               <span className="text-slate-400">No images available</span>
             </div>
           )}
@@ -207,7 +217,7 @@ const HostelDetailPage = () => {
           {hostel.video && (
             <button
               onClick={() => setShowVideo(true)}
-              className="absolute top-4 right-4 bg-gradient-to-r from-slate-800 to-slate-700 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow flex items-center"
+              className="absolute top-4 right-4 bg-gradient-to-r from-slate-800 to-slate-700 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow flex items-center hover:from-slate-700 hover:to-slate-600 transition"
             >
               <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
@@ -256,7 +266,7 @@ const HostelDetailPage = () => {
                     <svg className="w-4 h-4 mr-2 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                     </svg>
-                    Virtual Tour
+                    Apartment tour
                   </button>
                 )}
 
@@ -286,7 +296,7 @@ const HostelDetailPage = () => {
           </div>
         </div>
 
-        {/* Tabs Navigation - Fixed width to prevent horizontal scroll */}
+        {/* Tabs Navigation */}
         <div className="mt-8 overflow-x-auto">
           <div className="border-b border-slate-200 w-max min-w-full">
             <nav className="flex">
@@ -446,30 +456,94 @@ const HostelDetailPage = () => {
         </div>
       </main>
 
-      {/* Video Modal */}
-      {showVideo && hostel.video && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-          <div className="relative w-full max-w-4xl">
-            <button
-              onClick={() => setShowVideo(false)}
-              className="absolute -top-10 right-0 text-white hover:text-amber-400 transition p-2 md:-top-12"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <div className="aspect-w-16 aspect-h-9 bg-black rounded-lg overflow-hidden">
-              <iframe
-                src={hostel.video}
-                className="w-full h-64 sm:h-80 md:h-96 lg:h-[500px]"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
+      {/* Video Modal - Fullscreen on mobile */}
+      <AnimatePresence>
+        {showVideo && hostel.video && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-0 sm:p-4"
+          >
+            <div className="relative w-full h-full sm:max-w-4xl sm:h-auto sm:rounded-lg overflow-hidden">
+              <button
+                onClick={() => setShowVideo(false)}
+                className="absolute top-4 right-4 text-white hover:text-amber-400 transition p-2 z-10 sm:top-6 sm:right-6"
+              >
+                <FiX className="w-6 h-6" />
+              </button>
+              <div className="w-full h-full">
+                <iframe
+                  src={hostel.video}
+                  className="w-full h-full min-h-[calc(100vh-80px)] sm:min-h-[500px]"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Fullscreen Image Viewer */}
+      <AnimatePresence>
+        {fullscreenImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+            onClick={() => setFullscreenImage(null)}
+          >
+            <button
+              className="absolute top-4 right-4 text-white hover:text-amber-400 transition p-2 z-10"
+              onClick={(e) => {
+                e.stopPropagation();
+                setFullscreenImage(null);
+              }}
+            >
+              <FiX className="w-6 h-6" />
+            </button>
+            <div className="relative w-full h-full max-w-6xl flex items-center justify-center">
+              <motion.img
+                src={fullscreenImage}
+                alt="Fullscreen hostel view"
+                className="max-w-full max-h-full object-contain"
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", damping: 20 }}
+              />
+              {validImages.length > 1 && (
+                <div className="absolute bottom-8 left-0 right-0 flex justify-center space-x-2">
+                  {validImages.map((img, index) => (
+                    <button
+                      key={index}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setFullscreenImage(img);
+                      }}
+                      className={`w-2 h-2 rounded-full transition-all ${fullscreenImage === img ? 'bg-amber-500 w-4' : 'bg-white/60'}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Action Button for Mobile */}
+      <div className="fixed bottom-6 right-6 z-10 lg:hidden">
+        <a
+          href={whatsappLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-14 h-14 bg-green-500 rounded-full shadow-lg flex items-center justify-center text-white hover:bg-green-600 transition-colors"
+        >
+          <FaWhatsapp className="text-2xl" />
+        </a>
+      </div>
     </div>
   );
 };

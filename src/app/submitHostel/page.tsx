@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 const facilityOptions = [
   '24/7 Electricity',
   'Water',
-  'Wi-Fi',
+  'Bathroom',
   'Kitchen',
   'Security',
   'Laundry',
@@ -301,27 +301,6 @@ export default function AddHostelPage() {
                         onUpload={handleVideoUpload}
                         onRemove={handleVideoRemove}
                         existingVideo={formData.videoFile}
-                      />
-                    </div>
-
-                    <p className="text-sm text-slate-600 mb-2 text-center">- OR -</p>
-
-                    <div>
-                      <label htmlFor="videoUrl" className="block text-sm font-medium text-slate-700 mb-1">
-                        Paste video URL (YouTube, etc.)
-                      </label>
-                      <input
-                        type="url"
-                        id="videoUrl"
-                        name="videoUrl"
-                        value={formData.videoUrl}
-                        onChange={(e) => setFormData(prev => ({
-                          ...prev,
-                          videoUrl: e.target.value,
-                          videoFile: e.target.value ? '' : prev.videoFile // Clear file if URL is entered
-                        }))}
-                        className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
-                        placeholder="https://youtube.com/embed/..."
                       />
                     </div>
                   </div>
