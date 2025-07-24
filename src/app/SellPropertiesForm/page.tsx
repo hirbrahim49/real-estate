@@ -157,7 +157,7 @@ const SellPropertiesForm = () => {
       ]);
 
       // Format WhatsApp message
-      const message = `🏠 *NEW PROPERTY LISTING* 🏠\n\n` +
+      const whatsappMessage = `🏠 *NEW PROPERTY LISTING* 🏠\n\n` +
         `👤 *Name*: ${formData.name}\n` +
         `📞 *Phone*: ${formData.phone}\n` +
         `📱 *WhatsApp*: ${formData.whatsapp || 'Not provided'}\n\n` +
@@ -173,18 +173,43 @@ const SellPropertiesForm = () => {
         `   - ID Proof: ${idCardUpload.secure_url}\n\n` +
         `💬 *Additional Notes*: ${formData.customMessage || 'None'}`;
 
-      // Send to your Next.js API route
-      const response = await fetch('/api/whatsapp', {
+      // Send to WhatsApp
+      const whatsappResponse = await fetch('/api/submit-property', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message: whatsappMessage }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send message');
+      if (!whatsappResponse.ok) {
+        throw new Error('Failed to send WhatsApp message');
+      }
+
+      // Send to Google Sheets via API route
+      const sheetsResponse = await fetch('/api/properties', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          phone: formData.phone,
+          whatsapp: formData.whatsapp,
+          damage: formData.damage,
+          description: formData.description,
+          price: formData.price,
+          negotiable: formData.negotiable,
+          customMessage: formData.customMessage,
+          imageUrl: imageUpload.secure_url,
+          videoUrl: videoUpload?.secure_url || '',
+          idUrl: idCardUpload.secure_url
+        }),
+      });
+
+      const sheetsResult = await sheetsResponse.json();
+      if (!sheetsResult.success) {
+        throw new Error(sheetsResult.message || 'Failed to save to database');
       }
 
       // Reset form on success
@@ -243,7 +268,7 @@ const SellPropertiesForm = () => {
             animate={{ opacity: 1 }}
             className="bg-green-100 border border-green-300 text-green-700 p-4 rounded-lg mb-6 text-center"
           >
-            ✅ Successfully submitted! We will contact you via WhatsApp shortly.
+            ✅ Successfully submitted! Your property will be reviewed shortly.
           </motion.div>
         )}
 
