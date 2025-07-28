@@ -26,8 +26,10 @@ const Navbar = () => {
     { name: "Explore", path: "/explore", icon: <FaCompass className="text-lg" /> },
     { name: "About", path: "/about", icon: <FaInfoCircle className="text-lg" /> },
     { name: "Post Hostel", path: "/addHostels", icon: <FaPlus className="text-lg" /> },
-    { name: "Contact", path: "/contact", icon: <FaEnvelope className="text-lg" /> }
+    { name: "Contact", path: "/contact", icon: <FaEnvelope className="text-lg" /> },
+    { name: "Properties", path: "/properties", icon: <FaHome className="text-lg" /> }
   ];
+  // <FaHome className="mr-2" />
 
   // Close menu when clicking outside
   useEffect(() => {

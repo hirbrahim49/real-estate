@@ -282,7 +282,7 @@ const ListHostelPage = () => {
                   {
                     icon: <FaPercentage className="text-3xl mb-4 text-amber-500" />,
                     title: "2. Service Fee",
-                    desc: "Our 8% premium service fee includes marketing, vetting, and platform features.",
+                    desc: "Our 5% premium service fee includes marketing, vetting, and platform features.",
                     features: ["Transparent pricing", "No hidden fees", "Payment protection"]
                   },
                   {
@@ -428,7 +428,7 @@ const ListHostelPage = () => {
               </motion.p>
             </div>
           </div>
-        )}
+        )} 
 
         {/* Shared FAQ Section */}
         <div id="faq" className="mt-16 bg-white rounded-xl shadow-xl overflow-hidden border border-slate-100">

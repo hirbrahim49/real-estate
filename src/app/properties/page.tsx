@@ -16,7 +16,30 @@ interface Property {
   damage: string;
   approvaldate: string;
 }
+const fadeIn = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (delay = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { 
+      duration: 0.8, 
+      delay,
+      ease: [0.16, 1, 0.3, 1]
+    },
+  }),
+};
 
+const scaleUp = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut"
+    }
+  }
+};
 const PropertiesPage = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,6 +93,15 @@ const PropertiesPage = () => {
       <section className="relative py-24 bg-gradient-to-br from-slate-900 to-slate-800 text-white overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://uploads-ssl.webflow.com/5e80894f63c557e083ed96b4/5e831d9d086b358d0f7b9743_texture-noise.png')] opacity-5" />
         <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center relative">
+                    <motion.div 
+                      className="inline-flex items-center justify-center mb-6 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/10"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <span className="text-sm font-medium tracking-widest">EXPLORE PREMIUM HPROPERTY</span>
+                    </motion.div>
+                    
           <motion.h1
             className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-serif leading-tight"
             initial={{ opacity: 0, y: 20 }}
@@ -78,6 +110,11 @@ const PropertiesPage = () => {
           >
             Explore Available Properties
           </motion.h1>
+          <motion.div 
+                      className="w-24 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mx-auto mb-8 rounded-full"
+                      variants={fadeIn}
+                      transition={{ delay: 0.1 }}
+                    />
           <motion.p
             className="text-lg md:text-xl max-w-3xl mx-auto mb-8 text-slate-200 leading-relaxed"
             initial={{ opacity: 0 }}
@@ -197,7 +234,7 @@ const PropertiesPage = () => {
             Our team is ready to help you get the best deals.
           </p>
           <motion.a
-            href="tel:09044174371"
+            href="tel:09135843102"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
             className="px-8 py-3 bg-white text-amber-600 font-semibold rounded-xl transition-all duration-300 shadow-lg hover:bg-slate-100 hover:shadow-xl"

@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import DirectImageUpload from '../Components/DirectImageUpload';
-import DirectVideoUpload from '../Components/DirectVideoUpload';
+import DirectImageUpload from '../../Components/DirectImageUpload';
+import DirectVideoUpload from '../../Components/DirectVideoUpload';
 import { useEffect } from 'react';
 const facilityOptions = [
   '24/7 Electricity',

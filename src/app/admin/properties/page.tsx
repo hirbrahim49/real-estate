@@ -107,12 +107,17 @@ const AdminPropertiesPage = () => {
     <div className="container mt-[100px] mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Property Listing Requests</h1>
-        <button 
+       <section className='flex gap-2'>
+         <button  
           onClick={fetchProperties}
           className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
         >
           <FiRefreshCw /> Refresh
         </button>
+        <button className='px-6 py-3 rounded-xl shadow-sm text-base font-medium text-white bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all-'>
+          Post Hostel
+        </button>
+       </section>
       </div>
       
       {error && (
