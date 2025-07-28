@@ -50,7 +50,7 @@ const Footer = () => {
   const legalLinks = [
     { text: 'Privacy Policy', path: '/privacy' },
     { text: 'Terms of Service', path: '/terms' },
-    { text: 'List Your Property', path: '/submitHostel' }
+    { text: 'List Your Property', path: '/admin/submitHostel' }
   ];
 
   return (
