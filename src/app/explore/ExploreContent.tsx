@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { FiClock, FiAlertTriangle } from 'react-icons/fi';
 
 interface Hostel {
   id: string;
@@ -17,6 +18,7 @@ interface Hostel {
   contact: string;
   rating?: number;
   clientSideTimestamp?: number;
+  status: string;
 }
 
 const Page = () => {
@@ -48,6 +50,7 @@ const Page = () => {
   const [visibleHostels, setVisibleHostels] = useState(6);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState("oldest");
+  const [deletingHostels, setDeletingHostels] = useState<{[key: string]: number}>({});
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -66,9 +69,19 @@ const Page = () => {
           ...hostel,
           id: hostel.id || `hostel-${now}-${index}`,
           rating: (Math.random() * 1 + 4).toFixed(1),
-          clientSideTimestamp: now - index
+          clientSideTimestamp: now - index,
+          status: hostel.status || 'active'
         }));
         setHostelsData(dataWithTimestamps);
+
+        // Initialize countdown for pending deletions
+        const pendingDeletions: {[key: string]: number} = {};
+        dataWithTimestamps.forEach((hostel: Hostel) => {
+          if (hostel.status === 'pending_deletion') {
+            pendingDeletions[hostel.id] = 60;
+          }
+        });
+        setDeletingHostels(pendingDeletions);
       } catch (error) {
         console.error("Fetch error:", error);
         setHostelsData([]);
@@ -78,6 +91,27 @@ const Page = () => {
     };
     
     fetchData();
+  }, []);
+
+  // Countdown effect for deletion timers
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDeletingHostels(prev => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach(hostelId => {
+          if (updated[hostelId] > 0) {
+            updated[hostelId] -= 1;
+          } else {
+            delete updated[hostelId];
+            // Remove hostel from display when countdown reaches 0
+            setHostelsData(prev => prev.filter(hostel => hostel.id !== hostelId));
+          }
+        });
+        return updated;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -93,11 +127,14 @@ const Page = () => {
     hostel.area.trim()
   ))].filter(Boolean).sort();
 
+  // Filter out hostels that are pending deletion from the main display
+  const activeHostels = hostelsData.filter(hostel => hostel.status !== 'pending_deletion');
+  
   const filteredHostels = activeArea
-    ? hostelsData.filter(hostel => 
+    ? activeHostels.filter(hostel => 
         hostel.area.trim().toLowerCase() === activeArea.trim().toLowerCase()
       )
-    : hostelsData;
+    : activeHostels;
 
   const sortedHostels = [...filteredHostels].sort((a, b) => {
     switch(sortOption) {
@@ -127,12 +164,17 @@ const Page = () => {
 
   const noHostelsAvailable = () => {
     if (activeArea) {
-      return !hostelsData.some(hostel => 
+      return !activeHostels.some(hostel => 
         hostel.area.toLowerCase() === activeArea.toLowerCase()
       );
     }
     return false;
   };
+
+  // Get hostels that are pending deletion for the warning section
+  const pendingDeletionHostels = hostelsData.filter(hostel => 
+    hostel.status === 'pending_deletion'
+  );
 
   if (loading) {
     return (
@@ -179,6 +221,21 @@ const Page = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      {/* Warning Banner for Hostels Being Deleted */}
+      {pendingDeletionHostels.length > 0 && (
+        <div className="bg-orange-50 border-b border-orange-200">
+          <div className="max-w-7xl mx-auto px-6 py-3">
+            <div className="flex items-center justify-center gap-2 text-orange-800 text-sm">
+              <FiAlertTriangle className="flex-shrink-0" />
+              <span>
+                {pendingDeletionHostels.length} hostel(s) will be removed soon. 
+                Contact admin if this is a mistake.
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       <section className="relative py-24 bg-gradient-to-br from-slate-900 to-slate-800 text-white overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://uploads-ssl.webflow.com/5e80894f63c557e083ed96b4/5e831d9d086b358d0f7b9743_texture-noise.png')] opacity-5" />
         <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center relative">
@@ -262,7 +319,12 @@ const Page = () => {
 
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
             <p className="text-slate-600 text-sm">
-              Showing {Math.min(visibleHostels, sortedHostels.length)} of {sortedHostels.length} properties
+              Showing {Math.min(visibleHostels, sortedHostels.length)} of {sortedHostels.length} available properties
+              {pendingDeletionHostels.length > 0 && (
+                <span className="text-orange-600 ml-2">
+                  ({pendingDeletionHostels.length} being removed)
+                </span>
+              )}
             </p>
             <div className="relative">
               <select 
@@ -311,18 +373,27 @@ const Page = () => {
                 variants={fadeIn}
                 whileHover={{ y: -5 }}
               >
-                {/* Increased image height to h-80 (20rem) */}
                 <div className="relative h-80 overflow-hidden">
                   <img 
-                    src={hostel.images[0] || '/default-hostel.jpg'} 
+                    src={hostel.images && hostel.images.length > 0 ? hostel.images[0] : '/default-hostel.jpg'} 
                     alt={hostel.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
+
                   <div className="absolute top-4 left-4 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
                     Premium
                   </div>
+                  
+                  {/* Status Badge */}
+                  {hostel.status === 'pending_deletion' && (
+                    <div className="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1">
+                      <FiClock className="animate-pulse" />
+                      <span>Removing in {deletingHostels[hostel.id] || 0}s</span>
+                    </div>
+                  )}
+                  
                   {hostel.video && (
-                    <div className="absolute top-4 right-4 bg-slate-900/70 text-white p-2 rounded-full hover:bg-slate-800/90 transition-colors">
+                    <div className="absolute top-12 right-4 bg-slate-900/70 text-white p-2 rounded-full hover:bg-slate-800/90 transition-colors">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                       </svg>

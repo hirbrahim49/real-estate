@@ -6,7 +6,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
 import { FaWhatsapp, FaMapMarkerAlt, FaStar, FaChevronLeft, FaBed, FaWifi, FaParking, FaSwimmingPool, FaUtensils, FaExpand } from "react-icons/fa";
-import { FiCheckCircle, FiX } from "react-icons/fi";
+import { FiCheckCircle, FiX, FiClock, FiAlertTriangle } from "react-icons/fi";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { MdSecurity, MdLocalLaundryService, MdFitnessCenter } from "react-icons/md";
 import Link from "next/link";
@@ -23,6 +23,7 @@ interface Hostel {
   facilities: string[];
   contact: string;
   rating?: number;
+  status: string;
 }
 
 interface FacilityIcons {
@@ -37,6 +38,7 @@ const HostelDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+  const [deletionCountdown, setDeletionCountdown] = useState<number | null>(null);
   const sliderRef = useRef<Slider>(null);
 
   // Calculate valid images
@@ -58,12 +60,31 @@ const HostelDetailPage = () => {
   const goToNext = () => sliderRef.current?.slickNext();
   const goToPrev = () => sliderRef.current?.slickPrev();
 
+  // Countdown effect for deletion
+  useEffect(() => {
+    if (hostel?.status === 'pending_deletion' && deletionCountdown !== null && deletionCountdown > 0) {
+      const timer = setInterval(() => {
+        setDeletionCountdown(prev => {
+          if (prev && prev <= 1) {
+            clearInterval(timer);
+            // Redirect to explore page when countdown ends
+            window.location.href = '/explore';
+            return 0;
+          }
+          return prev ? prev - 1 : null;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [hostel?.status, deletionCountdown]);
+
   const generateWhatsAppMessage = () => {
     if (!hostel) return "";
     
     const mainImage = validImages.length > 0 ? validImages[0] : "https://res.cloudinary.com/your-cloud-name/image/upload/v1234567/hostelhub/default-hostel.jpg";
     
-    return `Hello HostelHub Admin,\n\nI'm interested in booking this hostel:\n\n*🏠 ${hostel.name}*\n📍 *Location:* ${hostel.location}\n💰 *Price:* ${hostel.price}\n⭐ *Rating:* ${hostel.rating || "4.5"}/5\n\n*Key Features:*\n${hostel.facilities.slice(0, 5).map(f => `• ${f}`).join('\n')}\n\n*Hostel Image:* ${mainImage}\n\nPlease provide:\n1. Room availability\n2. Booking procedure\n3. Payment options\n4.\nLooking forward to your response. Thank you!`;
+    return `Hello HostelHub Admin,\n\nI'm interested in booking this hostel:\n\n*🏠 ${hostel.name}*\n📍 *Location:* ${hostel.location}\n💰 *Price:* ${hostel.price}\n⭐ *Rating:* ${hostel.rating || "4.5"}/5\n\n*Key Features:*\n${hostel.facilities.slice(0, 5).map(f => `• ${f}`).join('\n')}\n\n*Hostel Image:* ${mainImage}\n\nPlease provide:\n1. Room availability\n2. Booking procedure\n3. Payment options\n\nLooking forward to your response. Thank you!`;
   };
 
   const getWhatsAppNumber = () => {
@@ -84,11 +105,27 @@ const HostelDetailPage = () => {
         setLoading(true);
         const response = await fetch('/api/hostels');
         const data = await response.json();
-        const foundHostel = data.find((h: Hostel) => h.id === id) || null;
-        setHostel(foundHostel ? {
-          ...foundHostel,
-          rating: (Math.random() * 1 + 4).toFixed(1)
-        } : null);
+        
+        // Convert ID to string for comparison (to handle number IDs from spreadsheet)
+        const stringId = Array.isArray(id) ? id[0] : id;
+        const foundHostel = data.find((h: Hostel) => 
+          h.id.toString() === stringId?.toString()
+        ) || null;
+        
+        if (foundHostel) {
+          const hostelWithRating = {
+            ...foundHostel,
+            rating: (Math.random() * 1 + 4).toFixed(1)
+          };
+          setHostel(hostelWithRating);
+          
+          // If hostel is marked for deletion, start countdown
+          if (foundHostel.status === 'pending_deletion') {
+            setDeletionCountdown(60); // Start from 60 seconds
+          }
+        } else {
+          setHostel(null);
+        }
       } catch (error) {
         console.error("Error fetching hostel:", error);
         setHostel(null);
@@ -97,7 +134,9 @@ const HostelDetailPage = () => {
       }
     };
     
-    fetchHostel();
+    if (id) {
+      fetchHostel();
+    }
   }, [id]);
 
   const facilityIcons: FacilityIcons = {
@@ -135,25 +174,50 @@ const HostelDetailPage = () => {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center p-6 max-w-md mx-auto">
-          <h3 className="text-2xl font-light text-slate-700 mb-4">Hostel Not Found</h3>
-          <Link href="/explore" className="inline-flex items-center text-amber-600 hover:text-amber-700">
-            Browse our premium collection <IoIosArrowForward className="ml-1" />
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <FiAlertTriangle className="text-red-500 text-2xl mx-auto mb-2" />
+            <h3 className="text-xl font-light text-red-700 mb-2">Hostel Not Found</h3>
+            <p className="text-red-600 text-sm">
+              This hostel may have been removed or is no longer available.
+            </p>
+          </div>
+          <Link 
+            href="/explore" 
+            className="inline-flex items-center px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
+          >
+            Browse Available Hostels <IoIosArrowForward className="ml-2" />
           </Link>
         </div>
       </div>
     );
   }
 
+  // Show deletion warning if hostel is marked for deletion
+  const isBeingDeleted = hostel.status === 'pending_deletion';
+
   return (
     <div className="min-h-screen bg-slate-50">
+      {/* Deletion Warning Banner */}
+      {isBeingDeleted && (
+        <div className="bg-red-50 border-b border-red-200 py-3 px-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 text-red-700">
+            <FiClock className="animate-pulse flex-shrink-0" />
+            <span className="text-sm font-medium">
+              This hostel will be removed in {deletionCountdown} seconds. 
+              Contact admin if this is a mistake.
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Fixed Header */}
       <header className="bg-white shadow-sm py-4 px-4 sticky top-0 z-20 md:py-6 md:px-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <Link href="/explore" className="flex items-center text-slate-700 hover:text-amber-600 transition-colors">
             <FaChevronLeft className="mr-2 text-amber-600" />
-            <span className="font-medium">Back</span>
+            <span className="font-medium">Back to Explore</span>
           </Link>
-          <div className="hidden md:flex items-center space-x-2 bg-amber-50 px-4 py-2 rounded-full">
+          <div className="flex items-center space-x-2 bg-amber-50 px-4 py-2 rounded-full">
             <span className="text-xs uppercase tracking-wider text-amber-600 font-medium">Premium</span>
             <FaStar className="text-amber-500 text-sm" />
           </div>
@@ -161,7 +225,7 @@ const HostelDetailPage = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 pb-12 md:px-6">
-        {/* Image Gallery - Redesigned for better mobile experience */}
+        {/* Image Gallery */}
         <div className="relative rounded-xl overflow-hidden shadow-lg mb-6 mt-4 md:mb-8 md:mt-6">
           {validImages.length > 0 ? (
             <>
@@ -214,7 +278,14 @@ const HostelDetailPage = () => {
             <FaStar className="inline mr-1" /> Premium
           </div>
 
-          {hostel.video && (
+          {isBeingDeleted && (
+            <div className="absolute top-4 right-4 bg-red-500 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow flex items-center">
+              <FiClock className="inline mr-1 animate-pulse" />
+              Removing in {deletionCountdown}s
+            </div>
+          )}
+
+          {hostel.video && !isBeingDeleted && (
             <button
               onClick={() => setShowVideo(true)}
               className="absolute top-4 right-4 bg-gradient-to-r from-slate-800 to-slate-700 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow flex items-center hover:from-slate-700 hover:to-slate-600 transition"
@@ -254,32 +325,51 @@ const HostelDetailPage = () => {
 
           {/* Booking Panel - Sticky on desktop */}
           <div className="lg:sticky lg:top-20 lg:h-fit">
-            <div className="bg-white rounded-lg shadow-md p-4 border border-slate-100 md:p-6">
-              <h3 className="text-xl font-serif font-light text-slate-800 mb-4">Arrange Viewing</h3>
+            <div className={`bg-white rounded-lg shadow-md p-4 border md:p-6 ${
+              isBeingDeleted ? 'border-red-200 bg-red-50' : 'border-slate-100'
+            }`}>
+              <h3 className="text-xl font-serif font-light text-slate-800 mb-4">
+                {isBeingDeleted ? 'Hostel Being Removed' : 'Arrange Viewing'}
+              </h3>
               
-              <div className="space-y-3">
-                {hostel.video && (
-                  <button
-                    onClick={() => setShowVideo(true)}
-                    className="w-full px-4 py-3 bg-gradient-to-r from-slate-800 to-slate-700 hover:from-slate-700 hover:to-slate-600 text-white rounded-lg font-medium transition-all flex items-center justify-center shadow hover:shadow-md text-sm md:text-base md:px-6 md:py-4"
+              {isBeingDeleted ? (
+                <div className="text-center py-6">
+                  <FiAlertTriangle className="text-red-500 text-3xl mx-auto mb-3" />
+                  <p className="text-red-600 mb-4">
+                    This hostel is no longer available and will be removed shortly.
+                  </p>
+                  <Link 
+                    href="/explore"
+                    className="inline-flex items-center px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors"
                   >
-                    <svg className="w-4 h-4 mr-2 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                    </svg>
-                    Apartment tour
-                  </button>
-                )}
+                    Browse Available Hostels
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {hostel.video && (
+                    <button
+                      onClick={() => setShowVideo(true)}
+                      className="w-full px-4 py-3 bg-gradient-to-r from-slate-800 to-slate-700 hover:from-slate-700 hover:to-slate-600 text-white rounded-lg font-medium transition-all flex items-center justify-center shadow hover:shadow-md text-sm md:text-base md:px-6 md:py-4"
+                    >
+                      <svg className="w-4 h-4 mr-2 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                      </svg>
+                      Apartment tour
+                    </button>
+                  )}
 
-                <a
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-medium transition-all flex items-center justify-center shadow hover:shadow-md text-sm md:text-base md:px-6 md:py-4"
-                >
-                  <FaWhatsapp className="text-lg mr-2" />
-                  Contact via WhatsApp
-                </a>
-              </div>
+                  <a
+                    href={whatsappLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-medium transition-all flex items-center justify-center shadow hover:shadow-md text-sm md:text-base md:px-6 md:py-4"
+                  >
+                    <FaWhatsapp className="text-lg mr-2" />
+                    Contact via WhatsApp
+                  </a>
+                </div>
+              )}
 
               <div className="mt-6 pt-4 border-t border-slate-100">
                 <h4 className="text-xs uppercase tracking-wider text-slate-500 mb-3">Key Features</h4>
@@ -534,16 +624,18 @@ const HostelDetailPage = () => {
       </AnimatePresence>
 
       {/* Floating Action Button for Mobile */}
-      <div className="fixed bottom-6 right-6 z-10 lg:hidden">
-        <a
-          href={whatsappLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-14 h-14 bg-green-500 rounded-full shadow-lg flex items-center justify-center text-white hover:bg-green-600 transition-colors"
-        >
-          <FaWhatsapp className="text-2xl" />
-        </a>
-      </div>
+      {!isBeingDeleted && (
+        <div className="fixed bottom-6 right-6 z-10 lg:hidden">
+          <a
+            href={whatsappLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-14 h-14 bg-green-500 rounded-full shadow-lg flex items-center justify-center text-white hover:bg-green-600 transition-colors"
+          >
+            <FaWhatsapp className="text-2xl" />
+          </a>
+        </div>
+      )}
     </div>
   );
 };
