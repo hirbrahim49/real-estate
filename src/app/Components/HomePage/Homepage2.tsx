@@ -1,9 +1,11 @@
 "use client";
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Herosection2 } from "../Data/HeroData";
-import { FaLocationDot } from "react-icons/fa6";
+import { FaLocationDot, FaStar, FaWhatsapp } from "react-icons/fa6";
 import { motion } from "framer-motion";
+import { FiArrowRight, FiCheckCircle } from "react-icons/fi";
 
 const Homepage2 = () => {
   // Enhanced animation variants
@@ -15,7 +17,8 @@ const Homepage2 = () => {
       transition: { 
         type: "spring",
         stiffness: 100,
-        damping: 15
+        damping: 15,
+        duration: 0.8
       } 
     },
   };
@@ -25,133 +28,149 @@ const Homepage2 = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2
+        staggerChildren: 0.15,
+        delayChildren: 0.3
       }
     }
   };
 
+  const fadeIn = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { 
+        duration: 0.8, 
+        ease: [0.16, 1, 0.3, 1] 
+      } 
+    },
+  };
+
   return (
-    <div className="bg-slate-50">
-      {/* Premium Hero Section */}
-      <motion.section 
-        className="flex flex-col items-center py-24 relative"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        viewport={{ once: true, amount: 0.5 }}
-      >
-        {/* Decorative elements */}
-        <div className="absolute inset-0 bg-[url('https://uploads-ssl.webflow.com/5e80894f63c557e083ed96b4/5e831d9d086b358d0f7b9743_texture-noise.png')] opacity-5 z-0" />
-        
-        <motion.div 
-          className="inline-flex items-center justify-center mb-6 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/10"
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          viewport={{ once: true }}
-        >
-          <span className="text-sm font-medium tracking-widest text-slate-800">PREMIUM PROPERTIES</span>
-        </motion.div>
-        
-        <motion.h1 
-          className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-6 font-serif leading-tight text-slate-800"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          Discover Premium <br className="hidden lg:block" />Student Accommodations
-        </motion.h1>
-        
-        <motion.div 
-          className="w-24 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mx-auto mb-8 rounded-full"
-          initial={{ opacity: 0, scaleX: 0 }}
-          whileInView={{ opacity: 1, scaleX: 1 }}
-          transition={{ duration: 0.8 }}
-        />
-        
-        <motion.p 
-          className="text-lg md:text-xl max-w-2xl mx-auto mb-8 text-slate-600 leading-relaxed text-center"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          At <strong className="text-amber-600">HostelHub</strong>, we specialize in connecting students with premium accommodations that combine comfort, style, and convenience for the ultimate living experience.
-        </motion.p>
-      </motion.section>
+    <div className="bg-gradient-to-br from-slate-50 to-slate-100">
 
       {/* Premium Property Cards Section */}
       <motion.section 
-        className="py-10 px-6 max-w-7xl mx-auto"
+        className="py-24 bg-white"
         initial="hidden"
         whileInView="visible"
         variants={containerVariants}
         viewport={{ once: true, margin: "-100px" }}
       >
-        <motion.div
-          className="mb-16 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="text-3xl font-light text-slate-800 mb-4 font-serif">
-            Our Featured Properties
-          </h2>
-          <div className="w-16 h-0.5 bg-amber-500 mx-auto mb-6" />
-          <p className="text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Each property in our collection meets rigorous standards for quality, 
-            comfort, and student-focused amenities.
-          </p>
-        </motion.div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            className="mb-16 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-6">
+              Featured <span className="text-amber-500">Premium</span> Properties
+            </h2>
+            <div className="w-20 h-1 bg-gradient-to-r from-amber-500 to-amber-600 mx-auto mb-6 rounded-full" />
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+              Each property in our collection meets rigorous standards for quality, comfort, and student-focused amenities
+            </p>
+          </motion.div>
 
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          variants={containerVariants}
-        >
-          {Herosection2.map((item, index) => (
-            <motion.div
-              key={index}
-              className="group relative bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 h-full flex flex-col"
-              variants={cardVariants}
-              whileHover={{ y: -8 }}
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            variants={containerVariants}
+          >
+            {Herosection2.map((item, index) => (
+              <motion.div
+                key={index}
+                className="group relative bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 h-full flex flex-col border border-slate-200"
+                variants={cardVariants}
+                whileHover={{ y: -8, scale: 1.02 }}
+              >
+                {/* Image with overlay */}
+                <div className="relative overflow-hidden h-80">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    quality={90}
+                    priority={index < 3}
+                  />
+                  
+                  {/* Premium badge */}
+                  <div className="absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg flex items-center">
+                    <FaStar className="mr-2" />
+                    Premium
+                  </div>
+
+                  {/* Rating overlay */}
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-slate-800 text-sm font-semibold px-3 py-1.5 rounded-full flex items-center">
+                    <FaStar className="text-amber-500 mr-1" />
+                    4.8
+                  </div>
+
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </div>
+
+                {/* Content */}
+                <div className="p-6 flex-grow flex flex-col">
+                  <div className="mb-4">
+                    <h2 className="text-xl font-bold text-slate-800 mb-2 group-hover:text-amber-600 transition-colors duration-300">
+                      {item.title}
+                    </h2>
+                    <p className="text-slate-600 leading-relaxed">
+                      {item.subtitle}
+                    </p>
+                  </div>
+                  
+                  {/* Location */}
+                  <div className="flex items-center text-slate-700 mt-auto pt-4 border-t border-slate-100">
+                    <FaLocationDot className="text-amber-500 mr-3 text-lg" />
+                    <span className="font-medium">{item.location}</span>
+                  </div>
+
+                  {/* Quick Features */}
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {['WiFi', 'Security', 'Furnished'].map((feature, i) => (
+                      <span 
+                        key={i}
+                        className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-medium"
+                      >
+                        {feature}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* View Details Button */}
+                  <Link 
+                    href="/explore"
+                    className="mt-6 px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-amber-600 transition-all duration-300 text-sm font-medium text-center group/btn"
+                  >
+                    <span className="flex items-center justify-center">
+                      View Details
+                      <FiArrowRight className="ml-2 group-hover/btn:translate-x-1 transition-transform duration-300" />
+                    </span>
+                  </Link>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* View All Properties CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="text-center mt-16"
+          >
+            <Link 
+              href="/explore"
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl font-semibold hover:from-amber-600 hover:to-amber-700 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
-              {/* Image with hover effect */}
-              <div className="relative overflow-hidden h-80">
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  quality={90}
-                  priority
-                />
-                {/* Premium badge */}
-                <div className="absolute top-4 left-4 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
-                  Premium
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-6 flex-grow flex flex-col">
-                <div className="flex items-center mb-3">
-                  <span className="w-8 h-[2px] bg-amber-500 mr-3" />
-                  <h2 className="text-xl font-semibold text-slate-800">
-                    {item.title}
-                  </h2>
-                </div>
-                <p className="text-slate-600 mb-4 flex-grow">
-                  {item.subtitle}
-                </p>
-                
-                {/* Location */}
-                <div className="flex items-center text-sm text-slate-700 mt-auto pt-4 border-t border-slate-100">
-                  <FaLocationDot className="text-amber-500 mr-2" />
-                  <span>{item.location}</span>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+              Explore All Premium Properties
+              <FiArrowRight className="ml-2" />
+            </Link>
+          </motion.div>
+        </div>
       </motion.section>
     </div>
   );

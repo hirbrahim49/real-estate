@@ -2,9 +2,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import DirectImageUpload from '../../Components/DirectImageUpload';
-import DirectVideoUpload from '../../Components/DirectVideoUpload';
+import DirectImageUpload from '../Components/DirectImageUpload';
+import DirectVideoUpload from '../Components/DirectVideoUpload';
 import { useEffect } from 'react';
+
 const facilityOptions = [
   '24/7 Electricity',
   'Water',
@@ -28,11 +29,13 @@ export default function AddHostelPage() {
     videoUrl: '', // For YouTube/external URLs
     price: '',
     facilities: [] as string[],
-    contact: ''
+    contact: '',
+    status: 'active' // Add status field with default value 'active'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -81,7 +84,9 @@ export default function AddHostelPage() {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
+    setSuccess('');
 
+    // Validation
     if (!formData.area || !formData.name || formData.images.length === 0 || !formData.price) {
       setError('Please fill in all required fields');
       setIsSubmitting(false);
@@ -89,36 +94,77 @@ export default function AddHostelPage() {
     }
 
     try {
+      console.log('Submitting hostel data:', {
+        ...formData,
+        video: formData.videoFile || formData.videoUrl,
+        status: 'active' // Ensure status is always active for new submissions
+      });
+
       const response = await fetch('/api/addHostel', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formData,
-          video: formData.videoFile || formData.videoUrl // Combine both video fields
+          area: formData.area,
+          name: formData.name,
+          location: formData.location,
+          shortDescription: formData.shortDescription,
+          images: formData.images,
+          video: formData.videoFile || formData.videoUrl,
+          price: formData.price,
+          facilities: formData.facilities,
+          contact: formData.contact,
+          status: 'active' // Explicitly set status to active
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to submit form');
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to submit form');
+      }
 
-      const data = await response.json();
-      if (data.success) router.push('/explore');
+      if (result.success) {
+        setSuccess('Hostel added successfully! Redirecting...');
+        
+        // Reset form
+        setFormData({
+          area: '',
+          name: '',
+          location: '',
+          shortDescription: '',
+          images: [],
+          videoFile: '',
+          videoUrl: '',
+          price: '',
+          facilities: [],
+          contact: '',
+          status: 'active'
+        });
+
+        // Redirect after success
+        setTimeout(() => {
+          router.push('/explore');
+        }, 2000);
+      } else {
+        throw new Error(result.message || 'Failed to add hostel');
+      }
     } catch (err) {
-      setError('Failed to add hostel. Please try again.');
-      console.error(err);
+      console.error('Submission error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to add hostel. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
     
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        setLoading(false);
-      }, 1500);
-  
-      return () => clearTimeout(timer);
-    }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   if (loading) {
     return (
@@ -191,9 +237,25 @@ export default function AddHostelPage() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 flex items-start"
+                className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 flex items-center"
               >
-                <div>{error}</div>
+                <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+                <span>{error}</span>
+              </motion.div>
+            )}
+
+            {success && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mb-6 p-4 bg-green-50 text-green-700 rounded-lg border border-green-200 flex items-center"
+              >
+                <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>{success}</span>
               </motion.div>
             )}
 
@@ -402,7 +464,6 @@ export default function AddHostelPage() {
                 </motion.button>
               </div>
             </form>
- 
           </div>
         </motion.div>
       </motion.div>

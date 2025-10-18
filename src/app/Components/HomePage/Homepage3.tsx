@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import { hotProperties } from '../Data/HeroData';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaStar, FaMapMarkerAlt, FaBed, FaWifi, FaParking } from 'react-icons/fa';
+import { FaStar, FaMapMarkerAlt, FaBed, FaWifi, FaParking, FaShower } from 'react-icons/fa';
+import { FiArrowRight, FiCheckCircle } from 'react-icons/fi';
 
 const PremiumProperties = () => {
   // Animation variants
@@ -32,11 +33,11 @@ const PremiumProperties = () => {
   };
 
   return (
-    <section className="py-24 bg-slate-50 relative">
-      {/* Decorative elements */}
-      <div className="absolute inset-0 bg-[url('https://uploads-ssl.webflow.com/5e80894f63c557e083ed96b4/5e831d9d086b358d0f7b9743_texture-noise.png')] opacity-5" />
+    <section className="py-24 bg-gradient-to-br from-slate-50 to-slate-100 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-cover bg-center opacity-5" />
       
-      <div className="max-w-7xl mx-auto px-6 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         {/* Header Section */}
         <motion.div
           initial="hidden"
@@ -45,18 +46,24 @@ const PremiumProperties = () => {
           viewport={{ once: true, amount: 0.3 }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center bg-amber-50 px-6 py-2 rounded-full mb-6 border border-amber-100">
-            <span className="text-sm font-medium tracking-widest text-amber-600">EXCLUSIVE OFFERS</span>
-          </div>
+          <motion.div 
+            className="inline-flex items-center justify-center mb-6 px-6 py-3 bg-white/80 backdrop-blur-sm rounded-full border border-amber-200 shadow-sm"
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <FiCheckCircle className="mr-2 text-amber-600" />
+            <span className="text-sm font-semibold tracking-wider text-amber-600">EXCLUSIVE PREMIUM PROPERTIES</span>
+          </motion.div>
           
-          <h2 className="text-4xl md:text-5xl font-light font-serif text-slate-800 mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-800 mb-6">
             Premium <span className="text-amber-500">Student Residences</span>
           </h2>
           
-          <div className="w-24 h-1 bg-amber-500 mx-auto mb-8 rounded-full" />
+          <div className="w-20 h-1 bg-gradient-to-r from-amber-500 to-amber-600 mx-auto mb-8 rounded-full" />
           
           <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Handpicked accommodations offering exceptional comfort, security, and proximity to campus
+            Handpicked accommodations offering exceptional comfort, security, and premium amenities for the ultimate student living experience
           </p>
         </motion.div>
 
@@ -72,75 +79,75 @@ const PremiumProperties = () => {
             <motion.div
               key={property.id}
               variants={fadeIn}
-              whileHover={{ y: -10 }}
-              transition={{ type: 'spring', stiffness: 300 }}
-              className="group relative bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-100"
+              whileHover={{ y: -12, scale: 1.02 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              className="group relative bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-slate-200"
             >
               {/* Property Image */}
-              <div className="relative h-64 overflow-hidden">
+              <div className="relative h-72 overflow-hidden">
                 <Image
                   src={property.image}
                   alt={property.name}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="object-cover group-hover:scale-110 transition-transform duration-700"
                   quality={90}
                   priority
                 />
                 {/* Premium Badge */}
-                <div className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center">
-                  <FaStar className="mr-1 text-xs" />
+                <div className="absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg flex items-center">
+                  <FaStar className="mr-2" />
                   <span>PREMIUM</span>
                 </div>
+                
+                {/* Overlay Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
 
               {/* Property Details */}
               <div className="p-6">
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="text-xl font-serif font-light text-slate-800">{property.name}</h3>
-                  <div className="flex items-center bg-slate-100 px-2 py-1 rounded-full">
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className="text-xl font-bold text-slate-800 group-hover:text-amber-600 transition-colors duration-300">{property.name}</h3>
+                  <div className="flex items-center bg-amber-50 px-3 py-1 rounded-full">
                     <FaStar className="text-amber-500 text-sm" />
-                    <span className="text-sm font-medium ml-1">4.8</span>
+                    <span className="text-sm font-semibold text-amber-700 ml-1">4.8</span>
                   </div>
                 </div>
 
                 {/* Location */}
                 <div className="flex items-center text-slate-600 mb-4">
                   <FaMapMarkerAlt className="text-amber-500 mr-2" />
-                  <span className="text-sm">{property.location}</span>
+                  <span className="text-sm font-medium">{property.location}</span>
                 </div>
 
                 {/* Amenities */}
                 <div className="flex flex-wrap gap-2 mb-4">
-                  <div className="flex items-center text-xs bg-slate-100 px-3 py-1 rounded-full">
-                    <FaBed className="text-amber-500 mr-1" />
-                    <span>Furnished</span>
-                  </div>
-                  <div className="flex items-center text-xs bg-slate-100 px-3 py-1 rounded-full">
-                    <FaWifi className="text-amber-500 mr-1" />
-                    <span>WiFi</span>
-                  </div>
-                  <div className="flex items-center text-xs bg-slate-100 px-3 py-1 rounded-full">
-                    <FaParking className="text-amber-500 mr-1" />
-                    <span>Parking</span>
-                  </div>
+                  {[
+                    { icon: <FaBed className="text-amber-500" />, label: 'Furnished' },
+                    { icon: <FaWifi className="text-amber-500" />, label: 'WiFi' },
+                    { icon: <FaParking className="text-amber-500" />, label: 'Parking' },
+                    { icon: <FaShower className="text-amber-500" />, label: 'Ensuite' }
+                  ].map((amenity, index) => (
+                    <div key={index} className="flex items-center text-xs bg-slate-100 px-3 py-2 rounded-lg">
+                      {amenity.icon}
+                      <span className="ml-1 font-medium text-slate-700">{amenity.label}</span>
+                    </div>
+                  ))}
                 </div>
 
-                <p className="text-slate-500 text-sm mb-6 line-clamp-2">{property.description}</p>
+                <p className="text-slate-600 text-sm mb-6 leading-relaxed line-clamp-2">{property.description}</p>
 
                 {/* Price and CTA */}
                 <div className="flex justify-between items-center border-t border-slate-100 pt-4">
                   <div>
-                    <p className="text-xs text-slate-500">Starting from</p>
-                    <p className="text-xl font-bold text-slate-800">{property.price}</p>
+                    <p className="text-xs text-slate-500 font-medium">Starting from</p>
+                    <p className="text-2xl font-bold text-slate-800">{property.price}</p>
                   </div>
                   <Link
                     href="/explore"
-                    className="px-5 py-2.5 bg-gradient-to-r from-slate-800 to-slate-700 hover:from-slate-700 hover:to-slate-600 text-white text-sm font-medium rounded-lg transition-all duration-300 flex items-center"
+                    className="px-5 py-3 bg-gradient-to-r from-slate-800 to-slate-700 hover:from-amber-500 hover:to-amber-600 text-white text-sm font-semibold rounded-xl transition-all duration-300 flex items-center shadow-lg hover:shadow-xl group/btn"
                   >
                     View Details
-                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
+                    <FiArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform duration-300" />
                   </Link>
                 </div>
               </div>
@@ -158,12 +165,10 @@ const PremiumProperties = () => {
         >
           <Link
             href="/explore"
-            className="inline-flex items-center px-8 py-4 border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors duration-300 font-medium"
+            className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl font-semibold hover:from-amber-600 hover:to-amber-700 transition-all duration-300 shadow-lg hover:shadow-xl"
           >
-            View All Premium Properties
-            <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
+            Explore All Premium Properties
+            <FiArrowRight className="ml-2" />
           </Link>
         </motion.div>
       </div>

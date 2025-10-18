@@ -1,5 +1,6 @@
 // Updated AdminPropertiesPage with enhanced hostel management
 'use client';
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { FiCheck, FiX, FiEye, FiTrash2, FiRefreshCw, FiHome, FiClock, FiPlus } from 'react-icons/fi';
 
@@ -527,17 +528,13 @@ const deleteHostel = async (hostelId: string) => {
                 >
                   Cancel
                 </button>
-                <button
-                  onClick={() => {
-                    // Handle form submission
-                    setShowPostForm(false);
-                    setSuccess('Hostel posting feature coming soon!');
-                  }}
-                  className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
-                  disabled
+                <Link 
+                href="/submitHostel"
+                className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors" 
                 >
+                
                   Post Hostel (Coming Soon)
-                </button>
+                </Link>
               </div>
             </div>
           </div>
